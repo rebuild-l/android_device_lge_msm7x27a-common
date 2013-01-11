@@ -2065,6 +2065,7 @@ void AudioPolicyManager::handleNotificationRoutingForStream(AudioSystem::stream_
     switch(stream) {
     case AudioSystem::MUSIC:
         checkOutputForStrategy(STRATEGY_SONIFICATION_RESPECTFUL);
+        checkOutputForStrategy(STRATEGY_MEDIA);
         updateDevicesAndOutputs();
         break;
     default:
