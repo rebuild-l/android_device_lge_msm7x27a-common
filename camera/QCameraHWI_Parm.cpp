@@ -2114,8 +2114,13 @@ status_t QCameraHardwareInterface::setFocusMode(const QCameraParameters& params)
                                       (void *)&value);
 
                 int cafSupport = FALSE;
-                if(!strcmp(str, QCameraParameters::FOCUS_MODE_CONTINUOUS_VIDEO) ||
-                   !strcmp(str, QCameraParameters::FOCUS_MODE_CONTINUOUS_PICTURE)){
+                //Add to support disable video CAF with adb command. 1(default): enable, 0: disable
+                char prop[PROPERTY_VALUE_MAX];
+                property_get("persist.camera.hal.videocaf", prop, "1");
+                int videocaf_enalbed = atoi(prop);
+                if(videocaf_enalbed &&
+                   ( !strcmp(str, QCameraParameters::FOCUS_MODE_CONTINUOUS_VIDEO) ||
+                   !strcmp(str, QCameraParameters::FOCUS_MODE_CONTINUOUS_PICTURE) )){
                     cafSupport = TRUE;
                 }
                 ALOGI("Continuous Auto Focus %d", cafSupport);
