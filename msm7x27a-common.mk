@@ -56,6 +56,7 @@ PRODUCT_PACKAGES += \
     liboverlay \
     gralloc.msm7x27a \
     hwcomposer.msm7x27a \
+    libtilerenderer \
     copybit.msm7x27a \
     audio.a2dp.default \
     audio.primary.msm7x27a \
