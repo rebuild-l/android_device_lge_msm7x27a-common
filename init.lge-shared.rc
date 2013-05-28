@@ -22,28 +22,11 @@ on init
     chown system camera /sys/devices/platform/i2c-gpio.3/i2c-3/3-0030/brightness_uA
     chmod 0660          /sys/devices/platform/i2c-gpio.3/i2c-3/3-0030/brightness_uA
 
-on emmc-fs
-# mount mmc partitions
-    wait /dev/block/mmcblk0p14
-    mount ext4 /dev/block/mmcblk0p14 /system ro data=ordered,barrier=1
-    wait /dev/block/mmcblk0p15
-    exec /system/bin/demigod_make_ext4fs -e /dev/block/mmcblk0p15 /persist
-    exec /system/bin/e2fsck -p /dev/block/mmcblk0p15
-    mount ext4 /dev/block/mmcblk0p15 /persist nosuid nodev data=ordered,barrier=1
-
-    wait /dev/block/mmcblk0p16
-    exec /system/bin/demigod_make_ext4fs -e /dev/block/mmcblk0p16 /cache
-    exec /system/bin/e2fsck -p /dev/block/mmcblk0p16
-    mount ext4 /dev/block/mmcblk0p16 /cache nosuid nodev data=ordered,barrier=1
-
-    wait /dev/block/mmcblk0p18
-    exec /system/bin/demigod_make_ext4fs -e /dev/block/mmcblk0p18 /persist-lg
-    exec /system/bin/e2fsck -p /dev/block/mmcblk0p18
-    mount ext4 /dev/block/mmcblk0p18 /persist-lg nosuid nodev data=ordered,barrier=1
-
-    #setprop ro.crypto.fuse_sdcard true
-    wait /dev/block/mmcblk0p20
-    mount ext4 /dev/block/mmcblk0p20 /data nosuid nodev noatime barrier=1,data=ordered,noauto_da_alloc,errors=continue
+on fs
+    mkdir /system
+    mkdir /persist 0771 system system
+    mkdir /persist-lg  0771 system system
+    mount_all fstab.lproj
 
 
 # LGE_CHANGE_E [jyothishre.nk@lge.com] 20120215
@@ -276,13 +259,6 @@ service qmuxd /system/bin/qmuxd
 
 service netmgrd /system/bin/netmgrd
     class core
-
-service hciattach /system/bin/logwrapper /system/bin/sh /system/etc/init.qcom.bt.sh
-    class late_start
-    user bluetooth
-    group qcom_oncrpc bluetooth net_bt_admin
-    disabled
-    oneshot
 
 service sdcard /system/bin/sdcard /data/media 1023 1023
     class late_start
