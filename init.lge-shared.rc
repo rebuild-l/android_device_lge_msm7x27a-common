@@ -1,45 +1,38 @@
 import init.lge.usb.rc
 
-on init
-    export EXTERNAL_STORAGE /storage/sdcard0
-
-# Backward compatibility
-    symlink /system/bin /bin
-
+on early-init
 # create mountpoints for storage
     mkdir /storage 0050 system sdcard_r
     mkdir /storage/sdcard0 0000 system system
     mkdir /storage/sdcard1 0000 system system
-    symlink /storage/sdcard0 /sdcard
 
+# for backwards compatibility
+    symlink /storage/sdcard1 /sdcard
+    symlink /storage/sdcard1 /mnt/sdcard
+    symlink /storage/sdcard0 /sdcard2
+    symlink /storage/sdcard0 /mnt/emmc
+
+    export EXTERNAL_STORAGE /storage/sdcard1
+    export SECONDARY_STORAGE /storage/sdcard0
+
+on init
+# Backward compatibility
+    symlink /system/bin /bin
 
 # NFC
     chmod 0600 /dev/pn544
     chown nfc nfc /dev/pn544
     setprop ro.nfc.port I2C
 
-on emmc-fs
-# mount mmc partitions
-    wait /dev/block/mmcblk0p14
-    mount ext4 /dev/block/mmcblk0p14 /system ro data=ordered,barrier=1
-    wait /dev/block/mmcblk0p15
-    exec /system/bin/demigod_make_ext4fs -e /dev/block/mmcblk0p15 /persist
-    exec /system/bin/e2fsck -p /dev/block/mmcblk0p15
-    mount ext4 /dev/block/mmcblk0p15 /persist nosuid nodev data=ordered,barrier=1
+# Torch perms
+    chown system camera /sys/devices/platform/i2c-gpio.3/i2c-3/3-0030/brightness_uA
+    chmod 0660          /sys/devices/platform/i2c-gpio.3/i2c-3/3-0030/brightness_uA
 
-    wait /dev/block/mmcblk0p16
-    exec /system/bin/demigod_make_ext4fs -e /dev/block/mmcblk0p16 /cache
-    exec /system/bin/e2fsck -p /dev/block/mmcblk0p16
-    mount ext4 /dev/block/mmcblk0p16 /cache nosuid nodev data=ordered,barrier=1
-
-    wait /dev/block/mmcblk0p18
-    exec /system/bin/demigod_make_ext4fs -e /dev/block/mmcblk0p18 /persist-lg
-    exec /system/bin/e2fsck -p /dev/block/mmcblk0p18
-    mount ext4 /dev/block/mmcblk0p18 /persist-lg nosuid nodev data=ordered,barrier=1
-
-    #setprop ro.crypto.fuse_sdcard true
-    wait /dev/block/mmcblk0p20
-    mount ext4 /dev/block/mmcblk0p20 /data nosuid nodev noatime barrier=1,data=ordered,noauto_da_alloc,errors=continue
+on fs
+    mkdir /system
+    mkdir /persist 0771 system system
+    mkdir /persist-lg  0771 system system
+    mount_all fstab.lproj
 
 
 # LGE_CHANGE_E [jyothishre.nk@lge.com] 20120215
@@ -65,7 +58,7 @@ on post-fs-data
     chown dhcp dhcp /data/misc/dhcp
 
     ## Sensors daemon stuff
-    mkdir /data/misc/sens 2755 system compass
+    mkdir /data/misc/sensor 2755 system compass
 
     # Mounting of persist is moved to 'on emmc-fs' and 'on fs' sections
     # We chown/chmod /persist again so because mount is run as root + defaults
@@ -201,9 +194,6 @@ on boot
     chown system /sys/devices/platform/rs300100a7.65536/sync_sts
     #chown system /sys/devices/system/cpu/cpufreq/ondemand/io_is_busy
 
-# Fix FFC
-    write /proc/sys/kernel/randomize_va_space 1
-
 service rmt_storage /system/bin/rmt_storage /dev/block/mmcblk0p10 /dev/block/mmcblk0p11 /dev/block/mmcblk0p17
     class core
     user root
@@ -212,11 +202,16 @@ service rmt_storage /system/bin/rmt_storage /dev/block/mmcblk0p10 /dev/block/mmc
 ## LGE_CHANGE_S, U0-SENSOR [seven.kim@lge.com] 2011-09-96
 # compass/accelerometer daemon for U0
 service sensord /system/bin/sensord
-   user system
-   group compass misc input
    class core
    oneshot
 ## LGE_CHANGE_E
+
+# Triggered by the KEY_VOLUME_DOWN+KEY_MENU keycodes
+service bugreport /system/bin/logwrapper /system/bin/dumpstate -d -v -o /storage/sdcard0/bugreports/bugreport
+    keycodes 114 139
+    class main
+    disabled
+    oneshot
 
 service setapversion /system/bin/lgapversion
     class main
@@ -278,13 +273,6 @@ service qmuxd /system/bin/qmuxd
 service netmgrd /system/bin/netmgrd
     class core
 
-service hciattach /system/bin/logwrapper /system/bin/sh /system/etc/init.qcom.bt.sh
-    class late_start
-    user bluetooth
-    group qcom_oncrpc bluetooth net_bt_admin
-    disabled
-    oneshot
-
 service sdcard /system/bin/sdcard /data/media 1023 1023
     class late_start
 
@@ -305,3 +293,21 @@ service hostapd /system/bin/hostapd -dddd /data/misc/wifi/hostapd.conf
     group root
     oneshot
     disabled
+
+#start camera server as daemon
+service qcamerasvr /system/bin/mm-qcamera-daemon
+        class late_start
+        user camera
+        group camera system inet audio
+
+# Values from the original post_boot scriptage
+on property:dev.bootcomplete=1
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor "ondemand"
+    write /sys/devices/system/cpu/cpufreq/ondemand/up_threshold 90
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq 245760
+    write /sys/devices/platform/msm_sdcc.1/idle_timeout 10
+    write /sys/module/pm2/modes/cpu0/power_collapse/suspend_enabled 1
+    write /sys/module/pm2/modes/cpu0/power_collapse/idle_enabled 1
+    write /sys/devices/system/cpu/cpufreq/ondemand/sampling_rate 25000
+    write /sys/module/lowmemorykiller/parameters/adj 0,1,2,4,9,12
+    write /proc/sys/vm/min_free_kbytes 5120

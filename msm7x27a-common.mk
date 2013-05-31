@@ -15,13 +15,12 @@ PRODUCT_COPY_FILES += \
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/7k_handset.kl:system/usr/keylayout/7k_handset.kl \
     $(LOCAL_PATH)/configs/AudioFilter.csv:system/etc/AudioFilter.csv \
-    $(LOCAL_PATH)/configs/vold.fstab:system/etc/vold.fstab
+    $(LOCAL_PATH)/configs/vold.fstab:system/etc/vold.fstab \
+    $(LOCAL_PATH)/configs/fstab.lproj:root/fstab.lproj
 
 
 PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/configs/media_profiles.xml:system/etc/media_profiles.xml \
-    $(LOCAL_PATH)/configs/media_codecs.xml:system/etc/media_codecs.xml \
-    $(LOCAL_PATH)/configs/audio_policy.conf:system/etc/audio_policy.conf
+    $(LOCAL_PATH)/configs/media_codecs.xml:system/etc/media_codecs.xml
 
 $(call inherit-product, build/target/product/full.mk)
 
@@ -46,17 +45,13 @@ PRODUCT_PACKAGES += \
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/wpa_supplicant.conf:system/etc/wifi/wpa_supplicant.conf
 
-# BT
-PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/prebuilt/init.qcom.bt.sh:system/etc/init.qcom.bt.sh
-
 # HW HALS
 PRODUCT_PACKAGES += \
     libgenlock \
     liboverlay \
+    libtilerenderer \
     gralloc.msm7x27a \
     hwcomposer.msm7x27a \
-    libtilerenderer \
     copybit.msm7x27a \
     audio.a2dp.default \
     audio.primary.msm7x27a \
@@ -77,6 +72,14 @@ PRODUCT_PACKAGES += \
     Nfc \
     Tag
 
+# Filesystem management tools
+PRODUCT_PACKAGES += \
+    make_ext4fs \
+    setup_fs
+
+PRODUCT_PACKAGES += \
+    audio_policy.conf
+
 # Common properties
 PRODUCT_PROPERTY_OVERRIDES += \
     debug.fb.rgb565=0 \
@@ -85,15 +88,21 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ro.opengles.version=131072 \
     com.qc.hardware=true \
     persist.sys.use_dithering=1 \
+    hwui.render_dirty_regions=false \
     wifi.interface=wlan0 \
     rild.libpath=/system/lib/libril-qc-1.so \
     ro.telephony.ril_class=LGEQualcommUiccRIL \
     ro.telephony.default_network=0 \
     telephony.lteOnGsmDevice=0 \
     persist.sys.usb.config=mtp,adb \
-    hwui.render_dirty_regions=false \
+    persist.service.adb.enable=1 \
+    ro.debuggable=1 \
+    hwui.render_dirty_regions=true \
     ro.max.fling_velocity=4000 \
     sys.mem.max_hidden_apps=3
+
+# Enable Torch
+PRODUCT_PACKAGES += Torch
 
 PRODUCT_BUILD_PROP_OVERRIDES += BUILD_UTC_DATE=0
 PRODUCT_MANUFACTURER := LGE

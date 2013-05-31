@@ -70,6 +70,7 @@
 #define MSMFB_MDP_PP _IOWR(MSMFB_IOCTL_MAGIC, 156, struct msmfb_mdp_pp)
 #define MSMFB_OVERLAY_VSYNC_CTRL _IOW(MSMFB_IOCTL_MAGIC, 160, unsigned int)
 #define MSMFB_VSYNC_CTRL  _IOW(MSMFB_IOCTL_MAGIC, 161, unsigned int)
+#define MSMFB_METADATA_SET  _IOW(MSMFB_IOCTL_MAGIC, 162, struct msmfb_metadata)
 #define FB_TYPE_3D_PANEL 0x10101010
 #define MDP_IMGTYPE2_START 0x10000
 #define MSMFB_DRIVER_VERSION	0xF9E8D701
@@ -137,6 +138,14 @@ enum {
 #define MDP_DITHER 0x8
 #define MDP_BLUR 0x10
 #define MDP_BLEND_FG_PREMULT 0x20000
+/* vinay.bhooma@lge.com TD Fix issue 261189
+ * QUALCOMM Patch for SR#01078394 - Screen flickers on launching opera for 1st time.
+ * Target : UO/P700 
+ * Screen flickers for target which support MDP Composition.
+ * With GPU Composition model e.g. V3 screen flickering issue is not observed.
+*/ 
+#define MDP_IS_FG 0x40000
+/**End of QUALCOMM Patch for SR#01078394 - Screen flickers on launching opera for 1st time */
 #define MDP_DEINTERLACE 0x80000000
 #define MDP_SHARPENING  0x40000000
 #define MDP_NO_DMA_BARRIER_START	0x20000000
@@ -480,7 +489,23 @@ struct msmfb_mdp_pp {
 	} data;
 };
 
+enum {
+	metadata_op_none,
+	metadata_op_base_blend,
+	metadata_op_max
+};
 
+struct mdp_blend_cfg {
+	uint32_t is_premultiplied;
+};
+
+struct msmfb_metadata {
+	uint32_t op;
+	uint32_t flags;
+	union {
+		struct mdp_blend_cfg blend_cfg;
+	} data;
+};
 struct mdp_page_protection {
 	uint32_t page_protection;
 };
