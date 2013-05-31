@@ -32,6 +32,8 @@ TARGET_KERNEL_SOURCE := kernel/lge/msm7x27a-common
 
 BOARD_HAS_NO_SELECT_BUTTON := true
 
+BOARD_VOLD_MAX_PARTITIONS := 23
+
 # Use this flag if the board has a ext4 partition larger than 2gb
 #BOARD_HAS_LARGE_FILESYSTEM := true
 

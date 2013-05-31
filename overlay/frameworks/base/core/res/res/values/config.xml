@@ -82,6 +82,9 @@
 
     <bool name="config_automatic_brightness_available">false</bool>
 
+    <!-- The kernel's range is limited to a max of 127, attempting to set anything higher has no effect -->
+    <integer name="config_screenBrightnessSettingMaximum">127</integer>
+
     <!-- List of regexpressions describing the interface (if any) that represent tetherable
                   Wifi interfaces.  If the device doesn't want to support tethering over Wifi this
          should be empty.  An example would be "softap.*" -->
