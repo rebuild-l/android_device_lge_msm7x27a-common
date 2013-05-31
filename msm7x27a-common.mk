@@ -22,7 +22,7 @@ PRODUCT_COPY_FILES += \
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/media_codecs.xml:system/etc/media_codecs.xml
 
-$(call inherit-product, build/target/product/full_base.mk)
+$(call inherit-product, build/target/product/full.mk)
 
 # Permission files
 PRODUCT_COPY_FILES += \
@@ -94,6 +94,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ro.telephony.ril_class=LGEQualcommUiccRIL \
     ro.telephony.default_network=0 \
     telephony.lteOnGsmDevice=0 \
+    ro.adb.secure=0 \
     persist.sys.usb.config=mtp,adb \
     persist.service.adb.enable=1 \
     ro.debuggable=1 \
