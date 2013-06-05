@@ -18,6 +18,11 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/vold.fstab:system/etc/vold.fstab \
     $(LOCAL_PATH)/configs/fstab.lproj:root/fstab.lproj
 
+# BT
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/bluetooth/init.lproj.bt.sh:system/etc/init.lproj.bt.sh \
+    $(LOCAL_PATH)/bluetooth/bt_vendor.conf:system/etc/bluetooth/bt_vendor.conf
+
 
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/media_codecs.xml:system/etc/media_codecs.xml
@@ -79,6 +84,9 @@ PRODUCT_PACKAGES += \
 
 PRODUCT_PACKAGES += \
     audio_policy.conf
+
+PRODUCT_PROPERTY_OVERRIDES += \
+	ro.qualcomm.bt.hci_transport=smd
 
 # Common properties
 PRODUCT_PROPERTY_OVERRIDES += \
