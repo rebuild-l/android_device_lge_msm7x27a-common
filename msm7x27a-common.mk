@@ -50,7 +50,7 @@ PRODUCT_PACKAGES += \
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/wpa_supplicant.conf:system/etc/wifi/wpa_supplicant.conf
 
-# HW HALS
+# display HALS
 PRODUCT_PACKAGES += \
     libgenlock \
     liboverlay \
@@ -58,9 +58,9 @@ PRODUCT_PACKAGES += \
     gralloc.msm7x27a \
     hwcomposer.msm7x27a \
     copybit.msm7x27a \
-    audio.a2dp.default \
-    audio.primary.msm7x27a \
-    audio_policy.msm7x27a \
+
+# off-mode charging
+PRODUCT_PACKAGES += \
     charger \
     charger_res_images
 
@@ -82,7 +82,11 @@ PRODUCT_PACKAGES += \
     make_ext4fs \
     setup_fs
 
+# audio 
 PRODUCT_PACKAGES += \
+    audio.a2dp.default \
+    audio.primary.msm7x27a \
+    audio_policy.msm7x27a \
     audio_policy.conf
 
 PRODUCT_PROPERTY_OVERRIDES += \
