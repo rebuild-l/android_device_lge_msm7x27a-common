@@ -56,8 +56,12 @@ PRODUCT_PACKAGES += \
     liboverlay \
     libtilerenderer \
     gralloc.msm7x27a \
-    hwcomposer.msm7x27a \
-    copybit.msm7x27a \
+    copybit.msm7x27a
+
+ifeq ($(TARGET_BOOTLOADER_BOARD_NAME),p700)
+PRODUCT_PACKAGES += \
+    hwcomposer.msm7x27a
+endif
 
 # off-mode charging
 PRODUCT_PACKAGES += \
