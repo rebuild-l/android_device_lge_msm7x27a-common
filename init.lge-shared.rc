@@ -197,6 +197,9 @@ on boot
     chown system /sys/devices/platform/rs300100a7.65536/sync_sts
     #chown system /sys/devices/system/cpu/cpufreq/ondemand/io_is_busy
 
+service sdcard /system/bin/sdcard /data/media 1023 1023
+    class late_start
+
 service rmt_storage /system/bin/rmt_storage /dev/block/mmcblk0p10 /dev/block/mmcblk0p11 /dev/block/mmcblk0p17
     class core
     user root

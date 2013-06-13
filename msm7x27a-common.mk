@@ -93,9 +93,6 @@ PRODUCT_PACKAGES += \
     audio_policy.msm7x27a \
     audio_policy.conf
 
-PRODUCT_PROPERTY_OVERRIDES += \
-	ro.qualcomm.bt.hci_transport=smd
-
 # Common properties
 PRODUCT_PROPERTY_OVERRIDES += \
     debug.fb.rgb565=0 \
@@ -107,16 +104,16 @@ PRODUCT_PROPERTY_OVERRIDES += \
     hwui.render_dirty_regions=false \
     wifi.interface=wlan0 \
     rild.libpath=/system/lib/libril-qc-1.so \
-    ro.telephony.ril_class=LGEQualcommUiccRIL \
     ro.telephony.default_network=0 \
     telephony.lteOnGsmDevice=0 \
+    ro.telephony.ril_class=LGEQualcommUiccRIL \
     ro.adb.secure=0 \
     persist.sys.usb.config=mtp,adb \
     persist.service.adb.enable=1 \
     ro.debuggable=1 \
     hwui.render_dirty_regions=true \
     ro.max.fling_velocity=4000 \
-    sys.mem.max_hidden_apps=3
+    sys.mem.max_hidden_apps=10
 
 # Enable Torch
 PRODUCT_PACKAGES += Torch

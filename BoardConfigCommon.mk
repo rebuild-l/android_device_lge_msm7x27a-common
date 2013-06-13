@@ -65,9 +65,6 @@ BOARD_BLUEDROID_VENDOR_CONF := device/lge/msm7x27a-common/bluetooth/vnd_lproj.tx
 ENABLE_WEBGL := true
 TARGET_FORCE_CPU_UPLOAD := true
 
-ENABLE_WEBGL := true
-TARGET_FORCE_CPU_UPLOAD := true
-
 # to enable the GPS HAL
 BOARD_USES_QCOM_LIBRPC := true
 BOARD_USES_QCOM_GPS := true
