@@ -59,11 +59,13 @@ BOARD_USE_SKIA_LCDTEXT := true
 BOARD_EGL_CFG := device/lge/msm7x27a-common/egl.cfg
 
 BOARD_HAVE_BLUETOOTH := true
-BOARD_HAVE_BLUETOOTH_QCOM := true
 BOARD_BLUEDROID_VENDOR_CONF := device/lge/msm7x27a-common/bluetooth/vnd_lproj.txt
 
 ENABLE_WEBGL := true
 TARGET_FORCE_CPU_UPLOAD := true
+
+# Use open-source ril
+BOARD_USES_LEGACY_RIL := true
 
 # to enable the GPS HAL
 BOARD_USES_QCOM_LIBRPC := true

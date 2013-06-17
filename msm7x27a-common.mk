@@ -20,8 +20,7 @@ PRODUCT_COPY_FILES += \
 
 # BT
 PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/bluetooth/init.lproj.bt.sh:system/etc/init.lproj.bt.sh \
-    $(LOCAL_PATH)/bluetooth/bt_vendor.conf:system/etc/bluetooth/bt_vendor.conf
+    $(LOCAL_PATH)/bluetooth/init.lproj.bt.sh:system/etc/init.lproj.bt.sh
 
 
 PRODUCT_COPY_FILES += \
@@ -58,21 +57,19 @@ PRODUCT_PACKAGES += \
     gralloc.msm7x27a \
     copybit.msm7x27a
 
-ifeq ($(TARGET_BOOTLOADER_BOARD_NAME),p700)
 PRODUCT_PACKAGES += \
-    hwcomposer.msm7x27a
-endif
+    libbt-vendor
 
 # off-mode charging
 PRODUCT_PACKAGES += \
     charger \
     charger_res_images
 
-# OMX 
+# Omx
 PRODUCT_PACKAGES += \
-    libstagefrighthw \
     libmm-omxcore \
-    libOmxCore
+    libOmxCore \
+    libstagefrighthw
 
 # NFC packages
 PRODUCT_PACKAGES += \

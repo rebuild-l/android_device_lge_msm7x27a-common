@@ -26,11 +26,12 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+#Read the arguments passed to the script
+config="$1"
+
 BLUETOOTH_SLEEP_PATH=/proc/bluetooth/sleep/proto
 LOG_TAG="lproj-bluetooth"
 LOG_NAME="${0}:"
-
-hciattach_pid=""
 
 loge ()
 {
@@ -45,39 +46,11 @@ logi ()
 failed ()
 {
   loge "$1: exit code $2"
+  setprop bluetooth.status off;
   exit $2
 }
 
-start_hciattach ()
-{
-  /system/bin/hciattach -n $BTS_DEVICE $BTS_TYPE $BTS_BAUD &
-  hciattach_pid=$!
-  logi "start_hciattach: pid = $hciattach_pid"
-  echo 1 > $BLUETOOTH_SLEEP_PATH
-}
-
-kill_hciattach ()
-{
-  echo 0 > $BLUETOOTH_SLEEP_PATH
-  logi "kill_hciattach: pid = $hciattach_pid"
-  ## careful not to kill zero or null!
-  kill -TERM $hciattach_pid
-  # this shell doesn't exit now -- wait returns for normal exit
-}
-
-# mimic hciattach options parsing -- maybe a waste of effort
-USAGE="hciattach [-n] [-p] [-b] [-t timeout] [-s initial_speed] <tty> <type | id> [speed] [flow|noflow] [bdaddr]"
-
-while getopts "blnpt:s:" f
-do
-  case $f in
-  b | l | n | p)  opt_flags="$opt_flags -$f" ;;
-  t)      timeout=$OPTARG;;
-  s)      initial_speed=$OPTARG;;
-  \?)     echo $USAGE; exit 1;;
-  esac
-done
-shift $(($OPTIND-1))
+setprop bluetooth.status off
 
 # Note that "hci_qcomm_init -e" prints expressions to set the shell variables
 # BTS_DEVICE, BTS_TYPE, BTS_BAUD, and BTS_ADDRESS.
@@ -103,31 +76,13 @@ esac
 
 eval $(/system/bin/hci_qcomm_init -e $PWR_CLASS && echo "exit_code_hci_qcomm_init=0" || echo "exit_code_hci_qcomm_init=1")
 
-case $? in
+case $exit_code_hci_qcomm_init in
   0) logi "Bluetooth QSoC firmware download succeeded, $BTS_DEVICE $BTS_TYPE $BTS_BAUD $BTS_ADDRESS";;
-  *) failed "Bluetooth QSoC firmware download failed" $exit_code_hci_qcomm_init;
-     setprop bluetooth.status off;
-     exit $exit_code_hci_qcomm_init;;
+  *) failed "Bluetooth QSoC firmware download failed" $exit_code_hci_qcomm_init;;
 esac
 
-# init does SIGTERM on ctl.stop for service
-trap "kill_hciattach" TERM INT
+setprop bluetooth.status on
 
 logi "start bluetooth smd transport"
-
-case $TRANSPORT in
-    "smd")
-        echo 1 > /sys/module/hci_smd/parameters/hcismd_set
-     ;;
-     *)
-        logi "start hciattach"
-        start_hciattach
-        setprop bluetooth.status on
-
-        wait $hciattach_pid
-        logi "Bluetooth stopped"
-        setprop bluetooth.status off
-     ;;
-esac
 
 exit 0
