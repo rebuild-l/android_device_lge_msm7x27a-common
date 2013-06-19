@@ -58,7 +58,8 @@ PRODUCT_PACKAGES += \
     copybit.msm7x27a
 
 PRODUCT_PACKAGES += \
-    libbt-vendor
+    libbt-vendor \
+    libbt-hci
 
 # off-mode charging
 PRODUCT_PACKAGES += \
@@ -76,12 +77,17 @@ PRODUCT_PACKAGES += \
     libnfc \
     libnfc_jni \
     Nfc \
-    Tag
+    Tag \
+    com.android.nfc_extras
 
 # Filesystem management tools
 PRODUCT_PACKAGES += \
     make_ext4fs \
     setup_fs
+
+# Misc
+PRODUCT_PACKAGES += \
+    com.android.future.usb.accessory
 
 # audio 
 PRODUCT_PACKAGES += \
@@ -89,6 +95,9 @@ PRODUCT_PACKAGES += \
     audio.primary.msm7x27a \
     audio_policy.msm7x27a \
     audio_policy.conf
+
+PRODUCT_PROPERTY_OVERRIDES += \
+    ro.qualcomm.bt.hci_transport=uart \
 
 # Common properties
 PRODUCT_PROPERTY_OVERRIDES += \
@@ -104,6 +113,21 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ro.telephony.default_network=0 \
     telephony.lteOnGsmDevice=0 \
     ro.telephony.ril_class=LGEQualcommRIL \
+    rild.libpath=/system/lib/libril-qc-1.so \
+    rild.libargs=-d/dev/smd0 \
+    persist.rild.nitz_plmn= \
+    persist.rild.nitz_long_ons_0= \
+    persist.rild.nitz_long_ons_1= \
+    persist.rild.nitz_long_ons_2= \
+    persist.rild.nitz_long_ons_3= \
+    persist.rild.nitz_short_ons_0= \
+    persist.rild.nitz_short_ons_1= \
+    persist.rild.nitz_short_ons_2= \
+    persist.rild.nitz_short_ons_3= \
+    ril.subscription.types=NV,RUIM \
+    DEVICE_PROVISIONED=1 \
+    keyguard.no_require_sim=1 \
+    ro.telephony.slow_modem=1 \
     ro.adb.secure=0 \
     persist.sys.usb.config=mtp,adb \
     persist.service.adb.enable=1 \

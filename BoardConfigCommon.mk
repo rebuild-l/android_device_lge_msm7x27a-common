@@ -61,6 +61,7 @@ BOARD_USE_SKIA_LCDTEXT := true
 BOARD_EGL_CFG := device/lge/msm7x27a-common/egl.cfg
 
 # bluetooth
+TARGET_USES_CUSTOM_HCI := true
 BOARD_HAVE_BLUETOOTH := true
 BOARD_BLUEDROID_VENDOR_CONF := device/lge/msm7x27a-common/bluetooth/vnd_lproj.txt
 
