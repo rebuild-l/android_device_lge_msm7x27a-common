@@ -5,9 +5,12 @@ on early-init
    mount debugfs debugfs /sys/kernel/debug
 
 # create mountpoints for storage
-    mkdir /storage 0050 system sdcard_r
-    mkdir /storage/sdcard0 0000 system system
-    mkdir /storage/sdcard1 0000 system system
+    mkdir /storage 0775 system sdcard_r
+    mkdir /storage/sdcard0 0775 system system
+    mkdir /storage/sdcard1 0775 system system
+    mkdir /mnt 0775 root system
+    mkdir /mnt/sdcard 0775 system system
+    mkdir /mnt/external_sd 0775 system system
 
 # for backwards compatibility
     symlink /storage/sdcard0 /mnt/sdcard
@@ -131,6 +134,14 @@ on post-fs-data
     write /data/misc/wifi/fwpath ""
     chmod 0666 /data/misc/wifi/fwpath
 
+    mkdir /data/logger 0771 system system
+    chown system system /data/logger
+    chmod 0771 /data/logger
+
+    copy /proc/last_kmsg /data/dontpanic/last_kmsg
+    chown root log /data/dontpanic/last_kmsg
+    chmod 0640 /data/dontpanic/last_kmsg
+
 on boot
     chown bluetooth bluetooth /sys/module/bluetooth_power/parameters/power
     chown bluetooth bluetooth /sys/class/rfkill/rfkill0/type
@@ -148,6 +159,10 @@ on boot
     chmod 0660 /sys/devices/platform/msm_serial_hs.0/clock
     chmod 0444 /sys/devices/platform/msm_hsusb/gadget/usb_state
 
+   #port-bridge
+    chmod 0660 /dev/smd0
+    chown system system /dev/smd0
+
     # Remove write permissions to video related nodes
     chmod 0664 /sys/devices/virtual/graphics/fb1/hpd
     chmod 0664 /sys/devices/virtual/graphics/fb1/video_mode
@@ -158,6 +173,21 @@ on boot
 
     #For netmgr daemon to inform the USB driver of the correct transport
     chown radio radio /sys/class/usb_composite/rmnet_smd_sdio/transport
+
+   #Create QMUX deamon socket area
+    mkdir /dev/socket/qmux_radio 0770 radio radio
+    chmod 2770 /dev/socket/qmux_radio
+    mkdir /dev/socket/qmux_audio 0770 media audio
+    chmod 2770 /dev/socket/qmux_audio
+    mkdir /dev/socket/qmux_bluetooth 0770 bluetooth bluetooth
+    chmod 2770 /dev/socket/qmux_bluetooth
+    mkdir /dev/socket/qmux_gps 0770 gps gps
+    chmod 2770 /dev/socket/qmux_gps
+
+    # Allow QMUX daemon to assign port open wait time
+    chown radio radio /sys/devices/virtual/hsicctl/hsicctl0/modem_wait
+
+    setprop ro.telephony.call_ring.multiple false
 
     #To allow interfaces to get v6 address when tethering is enabled
     write /proc/sys/net/ipv6/conf/rmnet0/accept_ra 2
@@ -197,7 +227,8 @@ on boot
     chown system /sys/devices/platform/rs300100a7.65536/sync_sts
     #chown system /sys/devices/system/cpu/cpufreq/ondemand/io_is_busy
 
-service sdcard /system/bin/sdcard /data/media 1023 1023
+
+service sdcard /system/bin/sdcard /data/media /storage/sdcard0 1023 1023
     class late_start
 
 service rmt_storage /system/bin/rmt_storage /dev/block/mmcblk0p10 /dev/block/mmcblk0p11 /dev/block/mmcblk0p17
@@ -291,9 +322,6 @@ service qmuxd /system/bin/qmuxd
 
 service netmgrd /system/bin/netmgrd
     class core
-
-service sdcard /system/bin/sdcard /data/media 1023 1023
-    class late_start
 
 ## TEMPORARY. WE NEED AN FSTAB TO USE mount_all
 on property:dev.bootcomplete=1
