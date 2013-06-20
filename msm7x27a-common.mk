@@ -55,7 +55,8 @@ PRODUCT_PACKAGES += \
     liboverlay \
     libtilerenderer \
     gralloc.msm7x27a \
-    copybit.msm7x27a
+    copybit.msm7x27a \
+    libqdMetaData
 
 PRODUCT_PACKAGES += \
     libbt-vendor \
