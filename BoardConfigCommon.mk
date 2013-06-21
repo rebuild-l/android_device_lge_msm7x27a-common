@@ -61,6 +61,8 @@ BOARD_HAVE_OLD_ION_API := true
 BOARD_USE_SKIA_LCDTEXT := true
 BOARD_EGL_CFG := device/lge/msm7x27a-common/egl.cfg
 
+TARGET_QCOM_MEDIA_VARIANT := legacy
+
 # bluetooth
 TARGET_PROVIDES_CUSTOM_HCI := true
 BOARD_HAVE_BLUETOOTH := true

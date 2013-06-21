@@ -72,7 +72,9 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     libmm-omxcore \
     libOmxCore \
-    libstagefrighthw
+    libstagefrighthw \
+    libdashplayer \
+    qcmediaplayer
 
 # NFC packages
 PRODUCT_PACKAGES += \
