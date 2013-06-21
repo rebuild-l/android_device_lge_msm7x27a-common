@@ -24,7 +24,8 @@ PRODUCT_COPY_FILES += \
 
 
 PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/configs/media_codecs.xml:system/etc/media_codecs.xml
+    $(LOCAL_PATH)/configs/media_codecs.xml:system/etc/media_codecs.xml \
+    $(LOCAL_PATH)/configs/audio_policy.conf::system/etc/audio_policy.conf
 
 $(call inherit-product, build/target/product/full.mk)
 
@@ -94,8 +95,7 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     audio.a2dp.default \
     audio.primary.msm7x27a \
-    audio_policy.msm7x27a \
-    audio_policy.conf
+    audio_policy.msm7x27a
 
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.qualcomm.bt.hci_transport=uart \
