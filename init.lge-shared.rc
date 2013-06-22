@@ -3,6 +3,7 @@ import init.lge.usb.rc
 on early-init
 
    mount debugfs debugfs /sys/kernel/debug
+   chmod 666 /proc/cmdline
 
 # create mountpoints for storage
     mkdir /storage 0775 system sdcard_r
