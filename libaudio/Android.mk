@@ -3,6 +3,7 @@
 #AUDIO_POLICY_TEST := true
 #ENABLE_AUDIO_DUMP := true
 
+TARGET_HAS_QACT := true
 LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 
@@ -50,6 +51,10 @@ endif
 ifeq ($(strip $(TARGET_HAS_QACT)),true)
 LOCAL_SHARED_LIBRARIES += libaudcal
 endif
+
+# hack for prebuilt
+$(shell mkdir -p $(OUT)/obj/SHARED_LIBRARIES/libaudcal_intermediates/)
+$(shell touch $(OUT)/obj/SHARED_LIBRARIES/libaudcal_intermediates/export_includes)
 
 LOCAL_STATIC_LIBRARIES := \
     libmedia_helper \

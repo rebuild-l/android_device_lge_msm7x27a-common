@@ -39,6 +39,7 @@ on fs
     mkdir /system
     mkdir /persist 0771 system system
     mkdir /persist-lg  0771 system system
+    mkdir /mpt 0771 system system
     mount_all fstab.lproj
 
 
@@ -71,6 +72,10 @@ on post-fs-data
     # We chown/chmod /persist again so because mount is run as root + defaults
     chown system system /persist
     chmod 0771 /persist
+
+    chown system system /mpt
+    chmod 0771 /mpt
+    
     chmod 0664 /sys/devices/platform/msm_sdcc.1/polling
     chmod 0664 /sys/devices/platform/msm_sdcc.2/polling
     chmod 0664 /sys/devices/platform/msm_sdcc.3/polling
@@ -228,6 +233,13 @@ on boot
     chown system /sys/devices/platform/rs300100a7.65536/sync_sts
     #chown system /sys/devices/system/cpu/cpufreq/ondemand/io_is_busy
 
+service ril-daemon1 /system/bin/rild -c 1
+    class main
+    socket rild1 stream 660 root radio
+    socket rild-debug1 stream 660 radio system
+    user root
+    disabled
+    group radio cache inet misc audio sdcard_rw qcom_oncrpc diag
 
 service sdcard /system/bin/sdcard /data/media /storage/sdcard0 1023 1023
     class late_start
@@ -319,7 +331,7 @@ service qmiproxy /system/bin/qmiproxy
 service qmuxd /system/bin/qmuxd
     class core
     user radio
-    group radio
+    group radio audio bluetooth gps qcom_diag
 
 service netmgrd /system/bin/netmgrd
     class core
@@ -347,6 +359,64 @@ service qcamerasvr /system/bin/mm-qcamera-daemon
         class late_start
         user camera
         group camera system inet audio
+
+#LGE_CHANGE_S[jyothishre.nk@lge.com]20121005:Adding logger support
+service logcat-main /system/bin/logcat -v time -b main -f /data/logger/main.log -n 4 -r 4096
+   class late_start
+   disabled
+   oneshot
+
+on property:persist.service.main.enable=1
+   start logcat-main
+
+on property:persist.service.main.enable=0
+   stop logcat-main
+
+service logcat-system /system/bin/logcat -v time -b system -f /data/logger/system.log -n 4 -r 4096
+   class late_start
+   disabled
+   oneshot
+
+on property:persist.service.system.enable=1
+    start logcat-system
+
+on property:persist.service.system.enable=0
+    stop logcat-system
+
+
+service logcat-radio /system/bin/logcat -v time -b radio -f /data/logger/radio.log -n 4 -r 4096
+   class late_start
+   disabled
+   oneshot
+
+on property:persist.service.radio.enable=1
+    start logcat-radio
+
+on property:persist.service.radio.enable=0
+    stop logcat-radio
+
+service logcat-events /system/bin/logcat -v time -b events -f /data/logger/events.log -n 4 -r 4096
+   class late_start
+   disabled
+   oneshot
+
+on property:persist.service.events.enable=1
+    start logcat-events
+
+on property:persist.service.events.enable=0
+    stop logcat-events
+
+service log-kernel /system/bin/logcat_kmsg /data/logger/kernel.log 4096 4
+   class late_start
+   disabled
+   oneshot
+
+on property:persist.service.kernel.enable=1
+    start log-kernel
+
+on property:persist.service.kernel.enable=0
+    stop log-kernel
+#LGE_CHANGE_E[jyothishre.nk@lge.com]20121005:Adding logger support
 
 # Values from the original post_boot scriptage
 on property:dev.bootcomplete=1
