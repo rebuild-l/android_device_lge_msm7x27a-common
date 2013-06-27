@@ -55,11 +55,12 @@ on post-fs-data
     mkdir /data/media 0775 media_rw media_rw
     chown media_rw media_rw /data/media
 
-#+s LGBT_COMMON_FUNCTION_BRINGUP - jeonghoon.lim@lge.com 2011-12-10
+    #+s LGBT_COMMON_FUNCTION_BRINGUP - jeonghoon.lim@lge.com 2011-12-10
     mkdir /data/misc/bluetooth 0770 bluetooth bluetooth
     mkdir /data/misc/bluetoothd 0770 bluetooth bluetooth    #moved from init.rc - jeonghoon.lim@lge.com
-#+e LGBT_COMMON_FUNCTION_BRINGUP
-        mkdir /data/misc/wifi 0775 wifi radio
+    #+e LGBT_COMMON_FUNCTION_BRINGUP
+
+     mkdir /data/misc/wifi 0775 wifi radio
     mkdir /data/misc/wifi/sockets 0770 wifi wifi
     mkdir /data/misc/wifi/wpa_supplicant 0770 wifi wifi
     mkdir /data/misc/dhcp 0770 dhcp dhcp
@@ -149,6 +150,7 @@ on post-fs-data
     chmod 0640 /data/dontpanic/last_kmsg
 
 on boot
+   # bluetooth
     chown bluetooth bluetooth /sys/module/bluetooth_power/parameters/power
     chown bluetooth bluetooth /sys/class/rfkill/rfkill0/type
     chown bluetooth bluetooth /sys/class/rfkill/rfkill0/state
@@ -164,6 +166,9 @@ on boot
     chown bluetooth bluetooth /sys/devices/platform/msm_serial_hs.0/clock
     chmod 0660 /sys/devices/platform/msm_serial_hs.0/clock
     chmod 0444 /sys/devices/platform/msm_hsusb/gadget/usb_state
+
+    # turn off bluetooth at startup
+    write /sys/class/rfkill/rfkill0/state 0
 
    #port-bridge
     chmod 0660 /dev/smd0
@@ -249,10 +254,106 @@ service rmt_storage /system/bin/rmt_storage /dev/block/mmcblk0p10 /dev/block/mmc
     user root
     disabled
 
+service config_bluetooth /system/bin/sh /system/etc/init.lproj.bt.sh "onboot"
+    class core
+    user root
+    oneshot
+
+on property:ro.qc.bluetooth.stack=bluez
+    start dbus
+
 service hciattach /system/bin/logwrapper /system/bin/sh /system/etc/init.lproj.bt.sh
     class late_start
     user bluetooth
-    group qcom_oncrpc bluetooth net_bt_admin system
+    group qcom_oncrpc bluetooth net_bt_admin net_bt_stack system
+    disabled
+    oneshot
+
+# +s LG_BTUI_ATCMD_DUTMODE munho2.lee@lge.com 110902, using QCT BT solution
+service hciattach_dut /system/bin/logwrapper /system/bin/hciattach -n /dev/ttyHS0 qualcomm-ibs 3000000
+    class late_start
+    user bluetooth
+    group qcom_oncrpc bluetooth net_bt_admin
+    disabled
+# +e LG_BTUI_ATCMD_DUTMODE
+
+service bt-sap /system/bin/sapd 15
+    user bluetooth
+    group bluetooth net_bt_admin
+    class late_start
+    disabled
+    oneshot
+
+#+s LGBT_COMMON_FUNCTION_BRINGUP - jeonghoon.lim@lge.com, 2011-12-10
+service bluetoothd /system/bin/logwrapper /system/bin/bluetoothd -n -d
+    class late_start
+    socket bluetooth stream 660 bluetooth bluetooth
+    socket dbus_bluetooth stream 660 bluetooth bluetooth
+    # init.rc does not yet support applying capabilities, so run as root and
+    # let bluetoothd drop uid to bluetooth with the right linux capabilities
+    group bluetooth net_bt_admin misc net_bt_stack
+    disabled
+
+service dbus /system/bin/dbus-daemon --system --nofork
+    class core
+    socket dbus stream 660 bluetooth bluetooth
+    user bluetooth
+    group bluetooth net_bt_admin
+    disabled
+
+service hfag /system/bin/sdptool add --channel=10 HFAG
+    class late_start
+    user bluetooth
+    group bluetooth net_bt_admin
+    disabled
+    oneshot
+
+service hsag /system/bin/sdptool add --channel=11 HSAG
+    class late_start
+    user bluetooth
+    group bluetooth net_bt_admin
+    disabled
+    oneshot
+
+service opush /system/bin/sdptool add --psm=5255 --channel=12 OPUSH
+    class late_start
+    user bluetooth
+    group bluetooth net_bt_admin
+    disabled
+    oneshot
+
+service pbap /system/bin/sdptool add --channel=19 PBAP
+    class late_start
+    user bluetooth
+    group bluetooth net_bt_admin
+    disabled
+    oneshot
+
+service ftp /system/bin/sdptool add --psm=5257 --channel=20 FTP
+    class late_start
+    user bluetooth
+    group bluetooth net_bt_admin
+    disabled
+    oneshot
+
+service map0 /system/bin/sdptool add --channel=16 MAS0
+    class late_start
+    user bluetooth
+    group bluetooth net_bt_admin
+    disabled
+    oneshot
+
+service map1 /system/bin/sdptool add --channel=17 MAS1
+    class late_start
+    user bluetooth
+    group bluetooth net_bt_admin
+    disabled
+    oneshot
+#+e LGBT_COMMON_FUNCTION_BRINGUP
+
+service hcidump /system/bin/sh /system/etc/hcidump.sh
+    user bluetooth
+    group bluetooth system net_bt_admin net_admin
     disabled
     oneshot
 
@@ -304,6 +405,10 @@ service wpa_supplicant /system/bin/logwrapper /system/bin/wpa_supplicant -Dnl802
 on property:init.svc.wpa_supplicant=stopped
     stop dhcpcd
 
+on property:bluetooth.isEnabled=true
+    start btwlancoex
+    write /sys/class/bluetooth/hci0/idle_timeout 7000
+
 on property:wlan.driver.status=loading
    write /sys/devices/platform/msm_sdcc.2/polling 1
 on property:wlan.driver.status=failed
@@ -341,6 +446,12 @@ on property:dev.bootcomplete=1
    start setapversion
    class_start late_start
 
+service hcidump /system/bin/sh /system/etc/hcidump.sh
+    user bluetooth
+    group bluetooth system net_bt_admin net_admin
+    disabled
+    oneshot
+
 service charger /charger
     class charger
     user root
@@ -359,6 +470,18 @@ service qcamerasvr /system/bin/mm-qcamera-daemon
         class late_start
         user camera
         group camera system inet audio
+
+# suhui.kim@lge.com for bluez logs
+#service bluetoothd /system/bin/bluetoothd -n
+service bluetoothd /system/bin/logwrapper /system/bin/bluetoothd -n -d
+    class late_start
+    socket bluetooth stream 660 bluetooth bluetooth
+    socket dbus_bluetooth stream 660 bluetooth bluetooth
+    # init.rc does not yet support applying capabilities, so run as root and
+    # let bluetoothd drop uid to bluetooth with the right linux capabilities
+    group bluetooth net_bt_admin misc net_bt_stack
+    disabled         
+
 
 #LGE_CHANGE_S[jyothishre.nk@lge.com]20121005:Adding logger support
 service logcat-main /system/bin/logcat -v time -b main -f /data/logger/main.log -n 4 -r 4096

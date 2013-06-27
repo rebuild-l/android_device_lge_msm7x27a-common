@@ -16,11 +16,20 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/7k_handset.kl:system/usr/keylayout/7k_handset.kl \
     $(LOCAL_PATH)/configs/AudioFilter.csv:system/etc/AudioFilter.csv \
     $(LOCAL_PATH)/configs/vold.fstab:system/etc/vold.fstab \
-    $(LOCAL_PATH)/configs/fstab.lproj:root/fstab.lproj
+    $(LOCAL_PATH)/configs/fstab.lproj:root/fstab.lproj \
+    $(LOCAL_PATH)/configs/hcidump.sh:system/etc/hcidump.sh
 
 # BT
 PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/bluetooth/init.lproj.bt.sh:system/etc/init.lproj.bt.sh
+    $(LOCAL_PATH)/bluetooth/init.lproj.bt.sh:system/etc/init.lproj.bt.sh \
+    system/bluetooth/data/audio.conf:system/etc/bluetooth/audio.conf \
+    system/bluetooth/data/auto_pairing.conf:system/etc/bluetooth/auto_pairing.conf \
+    system/bluetooth/data/blacklist.conf:system/etc/bluetooth/blacklist.conf \
+    system/bluetooth/data/input.conf:system/etc/bluetooth/input.conf \
+    system/bluetooth/data/main.le.conf:system/etc/bluetooth/main.conf \
+    system/bluetooth/data/network.conf:system/etc/bluetooth/network.conf \
+    system/bluetooth/data/stack.conf:system/etc/bluetooth/stack.conf
+
 
 
 PRODUCT_COPY_FILES += \
@@ -60,8 +69,12 @@ PRODUCT_PACKAGES += \
     libqdMetaData
 
 PRODUCT_PACKAGES += \
-    libbt-vendor \
-    libbt-hci
+    bluetoothd \
+    libbluetoothd \
+    hcitool \
+    hciconfig \
+    hciattach \
+    javax.btobex
 
 # off-mode charging
 PRODUCT_PACKAGES += \

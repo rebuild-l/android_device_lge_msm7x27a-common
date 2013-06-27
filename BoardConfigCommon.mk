@@ -63,8 +63,7 @@ BOARD_EGL_CFG := device/lge/msm7x27a-common/egl.cfg
 TARGET_QCOM_MEDIA_VARIANT := legacy
 
 # bluetooth
-BOARD_HAVE_BLUETOOTH := true
-BOARD_BLUEDROID_VENDOR_CONF := device/lge/msm7x27a-common/bluetooth/vnd_lproj.txt
+BOARD_HAVE_BLUETOOTH_BLUEZ := true
 
 # webkit
 ENABLE_WEBGL := true
