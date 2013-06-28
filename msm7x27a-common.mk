@@ -9,19 +9,12 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/recovery/postrecoveryboot.sh:recovery/root/sbin/postrecoveryboot.sh
 
 PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/init.lge-shared.rc:root/init.lge-shared.rc \
-    $(LOCAL_PATH)/init.lge.usb.rc:root/init.lge.usb.rc
-
-PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/7k_handset.kl:system/usr/keylayout/7k_handset.kl \
     $(LOCAL_PATH)/configs/AudioFilter.csv:system/etc/AudioFilter.csv \
-    $(LOCAL_PATH)/configs/vold.fstab:system/etc/vold.fstab \
-    $(LOCAL_PATH)/configs/fstab.lproj:root/fstab.lproj \
-    $(LOCAL_PATH)/configs/hcidump.sh:system/etc/hcidump.sh
+    $(LOCAL_PATH)/configs/vold.fstab:system/etc/vold.fstab
 
 # BT
 PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/bluetooth/init.lproj.bt.sh:system/etc/init.lproj.bt.sh \
     system/bluetooth/data/audio.conf:system/etc/bluetooth/audio.conf \
     system/bluetooth/data/auto_pairing.conf:system/etc/bluetooth/auto_pairing.conf \
     system/bluetooth/data/blacklist.conf:system/etc/bluetooth/blacklist.conf \
@@ -29,8 +22,6 @@ PRODUCT_COPY_FILES += \
     system/bluetooth/data/main.le.conf:system/etc/bluetooth/main.conf \
     system/bluetooth/data/network.conf:system/etc/bluetooth/network.conf \
     system/bluetooth/data/stack.conf:system/etc/bluetooth/stack.conf
-
-
 
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/media_codecs.xml:system/etc/media_codecs.xml \
@@ -54,6 +45,14 @@ PRODUCT_COPY_FILES += \
 
 PRODUCT_PACKAGES += \
     lgapversion
+
+PRODUCT_PACKAGES += \
+    init.lge-shared.rc \
+    init.lge.usb.rc \
+    fstab.lproj \
+    init.lproj.bt.sh \
+    hcidump.sh \
+    init.qcom.post_boot.sh  
 
 # Wifi
 PRODUCT_COPY_FILES += \

@@ -66,6 +66,13 @@ on post-fs-data
     mkdir /data/misc/dhcp 0770 dhcp dhcp
     chown dhcp dhcp /data/misc/dhcp
 
+    # Create the directory used by CnE subsystem
+    mkdir /data/connectivity 0771 system system
+    chown system system /data/connectivity
+
+    # Create directory used by audio subsystem
+    mkdir /data/misc/audio 0770 audio audio
+
     ## Sensors daemon stuff
     mkdir /data/misc/sensor 2755 system compass
 
@@ -107,6 +114,11 @@ on post-fs-data
     #Create directories for QuIPS
     mkdir /data/misc/quipc 0770 gps system
 
+    #Create directories for Location services
+    mkdir /data/misc/location 0770 gps gps
+    mkdir /data/misc/location/mq 0770 gps gps
+    mkdir /data/misc/location/xtwifi 0770 gps gps
+
     #Create directory from IMS services
     mkdir /data/shared 0755
 
@@ -119,6 +131,8 @@ on post-fs-data
     copy /proc/last_kmsg /data/dontpanic/last_kmsg
     chown root log /data/dontpanic/last_kmsg
     chmod 0640 /data/dontpanic/last_kmsg
+
+    mkdir /data/audio/ 0770 media audio
 
 # NFC
     # Create directories for wiper services
@@ -195,6 +209,8 @@ on boot
     mkdir /dev/socket/qmux_gps 0770 gps gps
     chmod 2770 /dev/socket/qmux_gps
 
+    setprop wifi.interface wlan0
+
     # Allow QMUX daemon to assign port open wait time
     chown radio radio /sys/devices/virtual/hsicctl/hsicctl0/modem_wait
 
@@ -217,7 +233,22 @@ on boot
     write /proc/sys/net/ipv6/conf/rmnet_sdio5/accept_ra 2
     write /proc/sys/net/ipv6/conf/rmnet_sdio6/accept_ra 2
     write /proc/sys/net/ipv6/conf/rmnet_sdio7/accept_ra 2
+    write /proc/sys/net/ipv6/conf/rmnet_usb0/accept_ra 2
+    write /proc/sys/net/ipv6/conf/rmnet_usb1/accept_ra 2
+    write /proc/sys/net/ipv6/conf/rmnet_usb2/accept_ra 2
+    write /proc/sys/net/ipv6/conf/rmnet_usb3/accept_ra 2
+
+    # To prevent out of order acknowledgements from making
+    # connection tracking to treat them as not belonging to
+    # the connection they belong to.
+    # Otherwise, a weird issue happens in which some long
+    # connections on high-throughput links get dropped when
+    # an ack packet comes out of order
+    write /proc/sys/net/netfilter/nf_conntrack_tcp_be_liberal 1
     write /proc/sys/vm/vfs_cache_pressure 100
+
+    #For bridgemgr daemon to inform the USB driver of the correct transport
+    chown radio radio /sys/class/android_usb/f_rmnet_smd_sdio/transport
 
     chmod 0664 /sys/class/leds/lcd-backlight/alc
     chown system system /sys/class/leds/lcd-backlight/alc
@@ -428,10 +459,16 @@ service iprenew_wlan0 /system/bin/dhcpcd -n
     disabled
     oneshot
 
+service qcom-post-boot /system/bin/sh /system/etc/init.qcom.post_boot.sh
+    class late_start
+    user root
+    disabled
+    oneshot
+
 service qmiproxy /system/bin/qmiproxy
     class core
     user radio
-    group radio
+    group radio qcom_diag
 
 service qmuxd /system/bin/qmuxd
     class core
@@ -543,12 +580,4 @@ on property:persist.service.kernel.enable=0
 
 # Values from the original post_boot scriptage
 on property:dev.bootcomplete=1
-    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor "ondemand"
-    write /sys/devices/system/cpu/cpufreq/ondemand/up_threshold 90
-    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq 245760
-    write /sys/devices/platform/msm_sdcc.1/idle_timeout 10
-    write /sys/module/pm2/modes/cpu0/power_collapse/suspend_enabled 1
-    write /sys/module/pm2/modes/cpu0/power_collapse/idle_enabled 1
-    write /sys/devices/system/cpu/cpufreq/ondemand/sampling_rate 25000
-    write /sys/module/lowmemorykiller/parameters/adj 0,1,2,4,9,12
-    write /proc/sys/vm/min_free_kbytes 5120
+    start qcom-post-boot
