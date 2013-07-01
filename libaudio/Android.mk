@@ -2,8 +2,9 @@
 
 #AUDIO_POLICY_TEST := true
 #ENABLE_AUDIO_DUMP := true
-
+ifeq ($(TARGET_USES_JELLYBEAN_BASEBAND),true)
 TARGET_HAS_QACT := true
+endif
 LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 
