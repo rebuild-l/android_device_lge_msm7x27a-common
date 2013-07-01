@@ -1,3 +1,4 @@
+import init.target.rc
 import init.lge.usb.rc
 
 on early-init
@@ -501,12 +502,6 @@ service hostapd /system/bin/hostapd -dddd /data/misc/wifi/hostapd.conf
     group root
     oneshot
     disabled
-
-#start camera server as daemon
-service qcamerasvr /system/bin/mm-qcamera-daemon
-        class late_start
-        user camera
-        group camera system inet audio
 
 # suhui.kim@lge.com for bluez logs
 #service bluetoothd /system/bin/bluetoothd -n

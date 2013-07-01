@@ -53,11 +53,13 @@ PRODUCT_PACKAGES += \
 
 PRODUCT_PACKAGES += \
     init.lge-shared.rc \
+    init.target.rc \
     init.lge.usb.rc \
     fstab.lproj \
     init.lproj.bt.sh \
     hcidump.sh \
-    init.qcom.post_boot.sh  
+    init.qcom.post_boot.sh \
+    init.qcom.efs.sync.sh
 
 # Wifi
 PRODUCT_COPY_FILES += \
