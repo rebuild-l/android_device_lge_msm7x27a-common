@@ -115,28 +115,29 @@ PRODUCT_PACKAGES += \
 
 # audio 
 PRODUCT_PACKAGES += \
+    libaudioutils \
     audio.a2dp.default \
     audio.primary.msm7x27a \
     audio_policy.msm7x27a \
     audio.usb.default
 
+# Do not power down SIM card when modem is sent to Low Power Mode.
 PRODUCT_PROPERTY_OVERRIDES += \
-    ro.qualcomm.bt.hci_transport=uart \
+	persist.radio.apm_sim_not_pwdn=1
 
-# Common properties
+# Ril sends only one RIL_UNSOL_CALL_RING, so set call_ring.multiple to false
 PRODUCT_PROPERTY_OVERRIDES += \
-    debug.fb.rgb565=0 \
-    debug.sf.hw=1 \
-    debug.composition.type=mdp \
-    ro.opengles.version=131072 \
-    com.qc.hardware=true \
-    persist.sys.use_dithering=1 \
-    hwui.render_dirty_regions=false \
-    wifi.interface=wlan0 \
-    rild.libpath=/system/lib/libril-qc-1.so \
-    ro.telephony.default_network=0 \
-    telephony.lteOnGsmDevice=0 \
-    ro.telephony.ril_class=LGEQualcommUiccRIL \
+	ro.telephony.call_ring.multiple=0
+
+PRODUCT_PROPERTY_OVERRIDES += \
+	ro.telephony.ril_class=LGEQualcommUiccRI \
+	ro.telephony.ril.v3=qcomdsds
+
+PRODUCT_PROPERTY_OVERRIDES += \
+	ro.telephony.default_network=0 \
+	telephony.lteOnGsmDevice=0
+
+PRODUCT_PROPERTY_OVERRIDES += \
     rild.libpath=/system/lib/libril-qc-1.so \
     rild.libargs=-d/dev/smd0 \
     persist.rild.nitz_plmn= \
@@ -150,8 +151,21 @@ PRODUCT_PROPERTY_OVERRIDES += \
     persist.rild.nitz_short_ons_3= \
     ril.subscription.types=NV,RUIM \
     DEVICE_PROVISIONED=1 \
-    keyguard.no_require_sim=1 \
-    ro.telephony.ril.v3=qcomdsds \
+    keyguard.no_require_sim=1 
+
+PRODUCT_PROPERTY_OVERRIDES += \
+    ro.qualcomm.bt.hci_transport=uart
+
+# Common properties
+PRODUCT_PROPERTY_OVERRIDES += \
+    debug.fb.rgb565=0 \
+    debug.sf.hw=1 \
+    debug.composition.type=mdp \
+    ro.opengles.version=131072 \
+    com.qc.hardware=true \
+    persist.sys.use_dithering=1 \
+    hwui.render_dirty_regions=false \
+    wifi.interface=wlan0 \
     ro.adb.secure=0 \
     persist.sys.usb.config=mtp,adb \
     persist.service.adb.enable=1 \
