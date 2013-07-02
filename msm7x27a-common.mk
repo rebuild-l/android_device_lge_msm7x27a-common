@@ -14,7 +14,6 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/vold.fstab:system/etc/vold.fstab
 
 # BT
-ifeq ($(BOARD_HAVE_BLUETOOTH_BLUEZ),true)
 PRODUCT_COPY_FILES += \
     system/bluetooth/data/audio.conf:system/etc/bluetooth/audio.conf \
     system/bluetooth/data/auto_pairing.conf:system/etc/bluetooth/auto_pairing.conf \
@@ -23,7 +22,6 @@ PRODUCT_COPY_FILES += \
     system/bluetooth/data/main.le.conf:system/etc/bluetooth/main.conf \
     system/bluetooth/data/network.conf:system/etc/bluetooth/network.conf \
     system/bluetooth/data/stack.conf:system/etc/bluetooth/stack.conf
-endif
 
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/media_codecs.xml:system/etc/media_codecs.xml \
@@ -74,7 +72,6 @@ PRODUCT_PACKAGES += \
     copybit.msm7x27a \
     libqdMetaData
 
-ifeq ($(BOARD_HAVE_BLUETOOTH_BLUEZ),true)
 PRODUCT_PACKAGES += \
     bluetoothd \
     libbluetoothd \
@@ -82,7 +79,6 @@ PRODUCT_PACKAGES += \
     hciconfig \
     hciattach \
     javax.btobex
-endif
 
 # off-mode charging
 PRODUCT_PACKAGES += \
@@ -127,18 +123,17 @@ PRODUCT_PACKAGES += \
     audio_policy.msm7x27a \
     audio.usb.default
 
-ifeq ($(TARGET_USES_JELLYBEAN_BASEBAND),true)
+# Do not power down SIM card when modem is sent to Low Power Mode.
 PRODUCT_PROPERTY_OVERRIDES += \
-    persist.radio.apm_sim_not_pwdn=1 \
-    ro.telephony.ril.v3=qcomdsds
-endif
+	persist.radio.apm_sim_not_pwdn=1
 
 # Ril sends only one RIL_UNSOL_CALL_RING, so set call_ring.multiple to false
 PRODUCT_PROPERTY_OVERRIDES += \
 	ro.telephony.call_ring.multiple=0
 
 PRODUCT_PROPERTY_OVERRIDES += \
-	ro.telephony.ril_class=LGEQualcommUiccRI
+	ro.telephony.ril_class=LGEQualcommUiccRIL \
+	ro.telephony.ril.v3=qcomdsds
 
 PRODUCT_PROPERTY_OVERRIDES += \
 	ro.telephony.default_network=0 \
