@@ -84,7 +84,7 @@ on post-fs-data
 
     chown system system /mpt
     chmod 0771 /mpt
-    
+
     chmod 0664 /sys/devices/platform/msm_sdcc.1/polling
     chmod 0664 /sys/devices/platform/msm_sdcc.2/polling
     chmod 0664 /sys/devices/platform/msm_sdcc.3/polling
@@ -151,7 +151,7 @@ on post-fs-data
     chown system system /data/logger
     chmod 0771 /data/logger
     # Log Service [END]
- 
+
     # Dummy file, to keep the API happy. The default firmware does both modes
     write /data/misc/wifi/fwpath ""
     chmod 0666 /data/misc/wifi/fwpath
@@ -493,7 +493,7 @@ service hcidump /system/bin/sh /system/etc/hcidump.sh
 service charger /charger
     class charger
     user root
-    group root 
+    group root
     oneshot
 
 service hostapd /system/bin/hostapd -dddd /data/misc/wifi/hostapd.conf
@@ -512,7 +512,7 @@ service bluetoothd /system/bin/logwrapper /system/bin/bluetoothd -n -d
     # init.rc does not yet support applying capabilities, so run as root and
     # let bluetoothd drop uid to bluetooth with the right linux capabilities
     group bluetooth net_bt_admin misc net_bt_stack
-    disabled         
+    disabled
 
 
 #LGE_CHANGE_S[jyothishre.nk@lge.com]20121005:Adding logger support

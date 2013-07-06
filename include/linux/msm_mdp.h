@@ -145,10 +145,10 @@ enum {
 #define MDP_BLEND_FG_PREMULT 0x20000
 /* vinay.bhooma@lge.com TD Fix issue 261189
  * QUALCOMM Patch for SR#01078394 - Screen flickers on launching opera for 1st time.
- * Target : UO/P700 
+ * Target : UO/P700
  * Screen flickers for target which support MDP Composition.
  * With GPU Composition model e.g. V3 screen flickering issue is not observed.
-*/ 
+*/
 #define MDP_IS_FG 0x40000
 /**End of QUALCOMM Patch for SR#01078394 - Screen flickers on launching opera for 1st time */
 #define MDP_DEINTERLACE 0x80000000
