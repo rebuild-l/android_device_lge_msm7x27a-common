@@ -25,45 +25,51 @@
 #include <hardware/hardware.h>
 #include <hardware/power.h>
 
-#define CPUFREQ_INTERACTIVE "/sys/devices/system/cpu/cpufreq/interactive/"
-#define CPUFREQ_CPU0 "/sys/devices/system/cpu/cpu0/cpufreq/"
-#define BOOSTPULSE_PATH (CPUFREQ_INTERACTIVE "boostpulse")
-
-#define MAX_BUF_SZ  10
-
-#define MAX_FREQ_NUMBER 10
-#define NOM_FREQ_INDEX 2
-
-static char *freq_list[MAX_FREQ_NUMBER];
-static char *max_freq, *nom_freq;
+#define SCALING_GOVERNOR_PATH "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor"
+#define BOOSTPULSE_ONDEMAND "/sys/devices/system/cpu/cpufreq/ondemand/boostpulse"
+#define BOOSTPULSE_INTERACTIVE "/sys/devices/system/cpu/cpufreq/interactive/boostpulse"
+#define BOOSTPULSE_SMARTASS2 "/sys/devices/system/cpu/cpufreq/smartass/boost_pulse"
+#define BOOSTPULSE_SMARTASSH3 "/sys/devices/system/cpu/cpufreq/smartassH3/boost_pulse"
+#define SAMPLING_RATE_SCREEN_ON "50000"
+#define SAMPLING_RATE_SCREEN_OFF "500000"
+#define TIMER_RATE_SCREEN_ON "30000"
+#define TIMER_RATE_SCREEN_OFF "500000"
 
 struct lge_power_module {
     struct power_module base;
     pthread_mutex_t lock;
     int boostpulse_fd;
     int boostpulse_warned;
-    short inited;
 };
 
-static int str_to_tokens(char *str, char **token, int max_token_idx)
-{
-    char *pos, *start_pos = str;
-    char *token_pos;
-    int token_idx = 0;
+static char governor[20];
 
-    if (!str || !token || !max_token_idx) {
-        return 0;
+static int sysfs_read(char *path, char *s, int num_bytes)
+{
+    char buf[80];
+    int count;
+    int ret = 0;
+    int fd = open(path, O_RDONLY);
+
+    if (fd < 0) {
+        strerror_r(errno, buf, sizeof(buf));
+        ALOGE("Error opening %s: %s\n", path, buf);
+
+        return -1;
     }
 
-    do {
-        token_pos = strtok_r(start_pos, " \t\r\n", &pos);
+    if ((count = read(fd, s, num_bytes - 1)) < 0) {
+        strerror_r(errno, buf, sizeof(buf));
+        ALOGE("Error writing to %s: %s\n", path, buf);
 
-        if (token_pos)
-            token[token_idx++] = strdup(token_pos);
-        start_pos = NULL;
-    } while (token_pos && token_idx < max_token_idx);
+        ret = -1;
+    } else {
+        s[count] = '\0';
+    }
 
-    return token_idx;
+    close(fd);
+
+    return ret;
 }
 
 static void sysfs_write(char *path, char *s)
@@ -87,66 +93,50 @@ static void sysfs_write(char *path, char *s)
     close(fd);
 }
 
-int sysfs_read(const char *path, char *buf, size_t size)
-{
-    int fd, len;
-
-    fd = open(path, O_RDONLY);
-    if (fd < 0)
+static int get_scaling_governor() {
+    if (sysfs_read(SCALING_GOVERNOR_PATH, governor,
+                sizeof(governor)) == -1) {
         return -1;
+    } else {
+        // Strip newline at the end.
+        int len = strlen(governor);
 
-    do {
-        len = read(fd, buf, size);
-    } while (len < 0 && errno == EINTR);
+        len--;
 
-    close(fd);
+        while (len >= 0 && (governor[len] == '\n' || governor[len] == '\r'))
+            governor[len--] = '\0';
+    }
 
-    return len;
+    return 0;
 }
 
-static void lge_power_init(struct power_module *module)
+static void lge_power_set_interactive(struct power_module *module, int on)
 {
-    int tmp;
-    struct lge_power_module *powmod =
-                                   (struct lge_power_module *) module;
-    char freq_buf[MAX_FREQ_NUMBER*10];
-    static int freq_num;
+    if (strncmp(governor, "ondemand", 8) == 0)
+        sysfs_write("/sys/devices/system/cpu/cpufreq/ondemand/sampling_rate",
+                on ? SAMPLING_RATE_SCREEN_ON : SAMPLING_RATE_SCREEN_OFF);
+    else if (strncmp(governor, "interactive", 11) == 0)
+        sysfs_write("/sys/devices/system/cpu/cpufreq/interactive/timer_rate",
+                on ? TIMER_RATE_SCREEN_ON : TIMER_RATE_SCREEN_OFF);
+}
 
-    tmp = sysfs_read(CPUFREQ_CPU0 "scaling_available_frequencies",
-                                                   freq_buf, sizeof(freq_buf));
-    if (tmp <= 0) {
-        return;
+
+static void configure_governor()
+{
+    lge_power_set_interactive(NULL, 1);
+
+    if (strncmp(governor, "ondemand", 8) == 0) {
+        sysfs_write("/sys/devices/system/cpu/cpufreq/ondemand/up_threshold", "90");
+        sysfs_write("/sys/devices/system/cpu/cpufreq/ondemand/io_is_busy", "1");
+        sysfs_write("/sys/devices/system/cpu/cpufreq/ondemand/sampling_down_factor", "4");
+        sysfs_write("/sys/devices/system/cpu/cpufreq/ondemand/down_differential", "10");
+
+    } else if (strncmp(governor, "interactive", 11) == 0) {
+        sysfs_write("/sys/devices/system/cpu/cpufreq/interactive/min_sample_time", "90000");
+        sysfs_write("/sys/devices/system/cpu/cpufreq/interactive/io_is_busy", "1");
+        sysfs_write("/sys/devices/system/cpu/cpufreq/interactive/hispeed_freq", "1134000");
+        sysfs_write("/sys/devices/system/cpu/cpufreq/interactive/above_hispeed_delay", "30000");
     }
-
-    freq_num = str_to_tokens(freq_buf, freq_list, MAX_FREQ_NUMBER);
-
-    /* Discard trailing empties */
-    while (!atoi(freq_list[freq_num - 1]) && freq_num) {
-        freq_num--;
-    }
-
-    if (!freq_num) {
-        return;
-    }
-
-    max_freq = freq_list[freq_num - 1];
-    tmp = (NOM_FREQ_INDEX > freq_num) ? freq_num : NOM_FREQ_INDEX;
-    nom_freq = freq_list[tmp - 1];
-
-    /*
-     * cpufreq interactive governor: timer 20ms, min sample 60ms,
-     * hispeed 600MHz at load 50%.
-     */
-
-    sysfs_write(CPUFREQ_INTERACTIVE "timer_rate", "20000");
-    sysfs_write(CPUFREQ_INTERACTIVE "min_sample_time", "60000");
-    sysfs_write(CPUFREQ_INTERACTIVE "hispeed_freq", nom_freq);
-    sysfs_write(CPUFREQ_INTERACTIVE "go_hispeed_load", "50");
-    sysfs_write(CPUFREQ_INTERACTIVE "above_hispeed_delay", "100000");
-    sysfs_write(CPUFREQ_INTERACTIVE "input_boost", "1");
-
-    powmod->inited = 1;
-
 }
 
 static int boostpulse_open(struct lge_power_module *lge)
@@ -156,13 +146,26 @@ static int boostpulse_open(struct lge_power_module *lge)
     pthread_mutex_lock(&lge->lock);
 
     if (lge->boostpulse_fd < 0) {
-        lge->boostpulse_fd = open(BOOSTPULSE_PATH, O_WRONLY);
+        if (get_scaling_governor() < 0) {
+            ALOGE("Can't read scaling governor.");
+            lge->boostpulse_warned = 1;
+        } else {
+            if (strncmp(governor, "ondemand", 8) == 0)
+                lge->boostpulse_fd = open(BOOSTPULSE_ONDEMAND, O_WRONLY);
+            else if (strncmp(governor, "interactive", 11) == 0)
+                lge->boostpulse_fd = open(BOOSTPULSE_INTERACTIVE, O_WRONLY);
+            else if (strncmp(governor, "smartassV2", 10) == 0)
+                lge->boostpulse_fd = open(BOOSTPULSE_SMARTASS2, O_WRONLY);
+            else if (strncmp(governor, "SmartassH3", 10) == 0)
+                lge->boostpulse_fd = open(BOOSTPULSE_SMARTASSH3, O_WRONLY);
 
-        if (lge->boostpulse_fd < 0) {
-            if (!lge->boostpulse_warned) {
+            if (lge->boostpulse_fd < 0 && !lge->boostpulse_warned) {
                 strerror_r(errno, buf, sizeof(buf));
-                ALOGE("Error opening %s: %s\n", BOOSTPULSE_PATH, buf);
+                ALOGV("Error opening boostpulse: %s\n", buf);
                 lge->boostpulse_warned = 1;
+            } else if (lge->boostpulse_fd > 0) {
+                configure_governor();
+                ALOGD("Opened %s boostpulse interface", governor);
             }
         }
     }
@@ -171,49 +174,35 @@ static int boostpulse_open(struct lge_power_module *lge)
     return lge->boostpulse_fd;
 }
 
-static void lge_power_set_interactive(struct power_module *module, int on)
-{
-    int len;
-    char buf[MAX_BUF_SZ];
-    struct lge_power_module *powmod =
-                                   (struct lge_power_module *) module;
-
-    if (!powmod->inited) {
-        return;
-    }
-
-    /*
-     * Lower maximum frequency when screen is off.
-     */
-
-    sysfs_write(CPUFREQ_CPU0 "scaling_max_freq", on ? max_freq : nom_freq);
-
-    sysfs_write(CPUFREQ_INTERACTIVE "input_boost", on ? "1" : "0");
-}
-
 static void lge_power_hint(struct power_module *module, power_hint_t hint,
                             void *data)
 {
     struct lge_power_module *lge = (struct lge_power_module *) module;
     char buf[80];
     int len;
-    struct lge_power_module *powmod =
-                                   (struct lge_power_module *) module;
-
-    if (!powmod->inited) {
-        return;
-    }
+    int duration = 1;
 
     switch (hint) {
     case POWER_HINT_INTERACTION:
+    case POWER_HINT_CPU_BOOST:
         if (boostpulse_open(lge) >= 0) {
-	    len = write(lge->boostpulse_fd, "1", 1);
+            if (data != NULL)
+                duration = (int) data;
 
-	    if (len < 0) {
-	        strerror_r(errno, buf, sizeof(buf));
-		ALOGE("Error writing to %s: %s\n", BOOSTPULSE_PATH, buf);
-	    }
-	}
+            snprintf(buf, sizeof(buf), "%d", duration);
+            len = write(lge->boostpulse_fd, buf, strlen(buf));
+
+            if (len < 0) {
+                strerror_r(errno, buf, sizeof(buf));
+	            ALOGE("Error writing to boostpulse: %s\n", buf);
+
+                pthread_mutex_lock(&lge->lock);
+                close(lge->boostpulse_fd);
+                lge->boostpulse_fd = -1;
+                lge->boostpulse_warned = 0;
+                pthread_mutex_unlock(&lge->lock);
+            }
+        }
         break;
 
     case POWER_HINT_VSYNC:
@@ -224,6 +213,12 @@ static void lge_power_hint(struct power_module *module, power_hint_t hint,
     }
 }
 
+static void lge_power_init(struct power_module *module)
+{
+    get_scaling_governor();
+    configure_governor();
+}
+
 static struct hw_module_methods_t power_module_methods = {
     .open = NULL,
 };
@@ -232,8 +227,8 @@ struct lge_power_module HAL_MODULE_INFO_SYM = {
     base: {
         common: {
             tag: HARDWARE_MODULE_TAG,
-            module_api_version: POWER_MODULE_API_VERSION_0_2,
-            hal_api_version: HARDWARE_HAL_API_VERSION,
+            version_major: 1,
+            version_minor: 0,
             id: POWER_HARDWARE_MODULE_ID,
             name: "LGE-MSM7x27a Power HAL",
             author: "The CyanogenMod Project",
