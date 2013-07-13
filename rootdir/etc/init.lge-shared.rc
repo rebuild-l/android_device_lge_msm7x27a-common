@@ -270,6 +270,12 @@ on boot
     chown system /sys/devices/platform/rs300100a7.65536/sync_sts
     #chown system /sys/devices/system/cpu/cpufreq/ondemand/io_is_busy
 
+# smartass governor boostpulse
+    chown system system /sys/devices/system/cpu/cpufreq/smartass/boost_pulse
+    chown system system /sys/devices/system/cpu/cpufreq/smartassH3/boost_pulse
+    chmod 0660 /sys/devices/system/cpu/cpufreq/smartass/boost_pulse
+     chmod 0660 /sys/devices/system/cpu/cpufreq/smartassH3/boost_pulse
+
 service ril-daemon1 /system/bin/rild -c 1
     class main
     socket rild1 stream 660 root radio
