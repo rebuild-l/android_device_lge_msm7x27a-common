@@ -126,6 +126,11 @@ PRODUCT_PACKAGES += \
     audio_policy.msm7x27a \
     audio.usb.default
 
+PRODUCT_PACKAGES += \
+    Email2 \
+    Exchange2
+
+
 # Do not power down SIM card when modem is sent to Low Power Mode.
 PRODUCT_PROPERTY_OVERRIDES += \
 	persist.radio.apm_sim_not_pwdn=1
