@@ -1071,19 +1071,9 @@ static status_t do_route_audio_rpc(uint32_t device,
         ALOGV("In SPEAKER");
     }
     else if(device == SND_DEVICE_HEADSET) {
-        args.device.rx_device = CAD_HW_DEVICE_ID_HEADSET_SPKR_MONO;
+        args.device.rx_device = CAD_HW_DEVICE_ID_HEADSET_SPKR_STEREO;
         args.device.tx_device = CAD_HW_DEVICE_ID_HEADSET_MIC;
         ALOGV("In HEADSET");
-    }
-    else if(device == SND_DEVICE_HEADSET) {
-        args.device.rx_device = CAD_HW_DEVICE_ID_HEADSET_SPKR_STEREO;
-        args.device.tx_device = CAD_HW_DEVICE_ID_HEADSET_MIC;
-        ALOGV("In HEADSET STEREO");
-    }
-    else if(device == SND_DEVICE_HEADSET) {
-        args.device.rx_device = CAD_HW_DEVICE_ID_HEADSET_SPKR_STEREO;
-        args.device.tx_device = CAD_HW_DEVICE_ID_NONE;
-        ALOGV("In HEADSET STEREO WITHOUT MIC");
     }
     else if(device == SND_DEVICE_IN_S_SADC_OUT_HANDSET) {
         args.device.rx_device = CAD_HW_DEVICE_ID_HANDSET_SPKR;
@@ -1114,11 +1104,6 @@ static status_t do_route_audio_rpc(uint32_t device,
         args.device.rx_device = CAD_HW_DEVICE_ID_BT_SCO_SPKR;
         args.device.tx_device = CAD_HW_DEVICE_ID_BT_SCO_MIC;
         ALOGV("In BT_HCO");
-    }
-    else if(device == SND_DEVICE_BT) {
-        args.device.rx_device = CAD_HW_DEVICE_ID_BT_A2DP_SPKR;
-        args.device.tx_device = CAD_HW_DEVICE_ID_NONE;
-        ALOGV("In BT");
     }
     else if(device == SND_DEVICE_STEREO_HEADSET_AND_SPEAKER) {
         args.device.rx_device = CAD_HW_DEVICE_ID_HEADSET_STEREO_PLUS_SPKR_MONO_RX;
@@ -1288,9 +1273,6 @@ status_t AudioHardware::doRouting(AudioStreamInMSM72xx *input, int outputDevice)
             } else if (inputDevice & AudioSystem::DEVICE_IN_WIRED_HEADSET) {
                     ALOGI("Routing audio to Wired Headset\n");
                     new_snd_device = SND_DEVICE_HEADSET;
-            } else if (outputDevices == AudioSystem::DEVICE_OUT_WIRED_HEADPHONE) {
-                    ALOGI("Routing audio to No microphone Wired Headphone (%d,%x)\n");
-                    new_snd_device = SND_DEVICE_HEADSET;
 #ifdef QCOM_FM_ENABLED
             } else if (inputDevice & AudioSystem::DEVICE_IN_FM_RX_A2DP) {
                     ALOGI("Routing audio from FM to Bluetooth A2DP\n");
@@ -1331,12 +1313,6 @@ status_t AudioHardware::doRouting(AudioStreamInMSM72xx *input, int outputDevice)
                 new_snd_device = SND_DEVICE_TTY_VCO;
             } else if (mTtyMode == TTY_HCO) {
                 ALOGI("Routing audio to TTY HCO Mode\n");
-                new_snd_device = SND_DEVICE_TTY_HCO;
-            }
-            if ((mTtyMode != TTY_OFF) && (mMode == AudioSystem::MODE_IN_CALL) &&
-                       (outputDevices & AudioSystem::DEVICE_OUT_SPEAKER)) {
-            } else if (mTtyMode == TTY_HCO) {
-                ALOGI("Routing audio to TTY HCO Mode with Speakerphone\n");
                 new_snd_device = SND_DEVICE_TTY_HCO;
             }
 #ifdef COMBO_DEVICE_SUPPORTED
