@@ -214,7 +214,8 @@ int camera_preview_enabled(struct camera_device * device)
 
 int camera_store_meta_data_in_buffers(struct camera_device * device, int enable)
 {
-    ALOGV("qcamera_store_meta_data_in_buffers:\n");
+    ALOGV("%s", __FUNCTION__);
+    ALOGV("%s->%08X->%08X", __FUNCTION__, (uintptr_t)device, (uintptr_t)(((wrapper_camera_device_t*)device)->vendor));
     return -1;
 }
 
