@@ -108,6 +108,9 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     gps.msm7x27a
 
+PRODUCT_PACKAGES += \
+    camera.msm7x27a
+
 # Filesystem management tools
 PRODUCT_PACKAGES += \
     make_ext4fs \
@@ -182,8 +185,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ro.debuggable=1 \
     hwui.render_dirty_regions=true \
     ro.max.fling_velocity=4000 \
-    sys.mem.max_hidden_apps=10 \
-    debug.camcorder.disablemeta=1
+    sys.mem.max_hidden_apps=10
 
 # Enable Torch
 PRODUCT_PACKAGES += Torch
