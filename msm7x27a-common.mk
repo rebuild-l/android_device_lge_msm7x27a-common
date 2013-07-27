@@ -126,9 +126,9 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     libaudioutils \
     audio.a2dp.default \
-    audio.primary.msm7x27a \
-    audio_policy.msm7x27a \
-    audio.usb.default
+    audio.usb.default \
+#    audio.primary.msm7x27a \
+#    audio_policy.msm7x27a \
 
 PRODUCT_PACKAGES += \
     Email2 \
