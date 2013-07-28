@@ -76,6 +76,9 @@ using android::Condition;
 #define NS_ENABLE      0x0002
 #define TX_IIR_ENABLE  0x0004
 
+
+#define AUDIO_PARAMETER_KEY_FLUENCE_TYPE "fluence"
+
 struct eq_filter_type {
     int16_t gain;
     uint16_t freq;
@@ -351,6 +354,7 @@ private:
                 int         mFormat;
     };
 #endif
+
 // ----------------------------------------------------------------------------
 
 class AudioSessionOutLPA : public AudioStreamOut

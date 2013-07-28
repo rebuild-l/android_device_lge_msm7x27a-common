@@ -310,14 +310,14 @@ uint32_t AudioPolicyManager::checkDeviceMuteStrategies(AudioOutputDescriptor *ou
     uint32_t muteWaitMs = 0;
     audio_devices_t device = outputDesc->device();
 #ifdef QCOM_FM_ENABLED
-    bool shouldMute = (outputDesc->isActive()) &&
+    bool shouldMute = outputDesc->isActive() &&
                     (AudioSystem::popCount(device) >= (device & AUDIO_DEVICE_OUT_FM ? 3 : 2));
 #else
-    bool shouldMute = (outputDesc->isActive());
+    bool shouldMute = outputDesc->isActive();
 #endif
     // temporary mute output if device selection changes to avoid volume bursts due to
     // different per device volumes
-    bool tempMute = (outputDesc->isActive()) && (device != prevDevice);
+    bool tempMute = outputDesc->isActive() && (getDeviceForVolume(device) != getDeviceForVolume(prevDevice));
 
     for (size_t i = 0; i < NUM_STRATEGIES; i++) {
         audio_devices_t curDevice = getDeviceForStrategy((routing_strategy)i, false /*fromCache*/);
@@ -341,7 +341,7 @@ uint32_t AudioPolicyManager::checkDeviceMuteStrategies(AudioOutputDescriptor *ou
                 ALOGVV("checkDeviceMuteStrategies() %s strategy %d (curDevice %04x) on output %d",
                       mute ? "muting" : "unmuting", i, curDevice, curOutput);
                 setStrategyMute((routing_strategy)i, mute, curOutput, mute ? 0 : delayMs * 4);
-                if (desc->isStrategyActive((routing_strategy)i)) != 0) {
+                if (desc->isStrategyActive((routing_strategy)i)) {
                     if (tempMute) {
                         setStrategyMute((routing_strategy)i, true, curOutput);
                         setStrategyMute((routing_strategy)i, false, curOutput,
@@ -1322,9 +1322,8 @@ status_t AudioPolicyManager::startOutput(audio_io_handle_t output,
                 }
                 // wait for audio on other active outputs to be presented when starting
                 // a notification so that audio focus effect can propagate.
-                uint32_t latency = desc->latency();
-                if (shouldWait && desc->isActive(latency * 2) && (waitMs < latency)) {
-                    waitMs = latency;
+                if (shouldWait && (desc->isActive()) && (waitMs < desc->latency())) {
+                    waitMs = desc->latency();
                 }
             }
         }
@@ -1402,7 +1401,7 @@ status_t AudioPolicyManager::stopOutput(audio_io_handle_t output,
                 audio_io_handle_t curOutput = mOutputs.keyAt(i);
                 AudioOutputDescriptor *desc = mOutputs.valueAt(i);
                 if (curOutput != output &&
-                        desc->refCount() != 0 &&
+                        desc->isActive() &&
                         outputDesc->sharesHwModuleWith(desc) &&
                         newDevice != desc->device()) {
                     setOutputDevice(curOutput,
@@ -1539,17 +1538,6 @@ audio_devices_t AudioPolicyManager::getDeviceForVolume(audio_devices_t device)
     return device;
 }
 
-bool AudioPolicyManager::isDirectOutput(audio_io_handle_t output) {
-    for (size_t i = 0; i < mOutputs.size(); i++) {
-       audio_io_handle_t curOutput = mOutputs.keyAt(i);
-       AudioOutputDescriptor *desc = mOutputs.valueAt(i);
-           if ((curOutput == output) && (desc->mFlags & AUDIO_OUTPUT_FLAG_DIRECT)) {
-              return true;
-           }
-    }
-    return false;
-}
-
 status_t AudioPolicyManager::checkAndSetVolume(int stream, int index, audio_io_handle_t output, audio_devices_t device, int delayMs, bool force)
 {
     // do not change actual stream volume if the stream is muted
@@ -1571,9 +1559,9 @@ status_t AudioPolicyManager::checkAndSetVolume(int stream, int index, audio_io_h
     // We actually change the volume if:
     // - the float value returned by computeVolume() changed
     // - the force flag is set
-    if (volume != mOutputs.valueFor(output)->mCurVolume[stream]
+    if (volume != mOutputs.valueFor(output)->mCurVolume[stream] 
 #ifdef QCOM_FM_ENABLED
-            || (stream == AudioSystem::FM)
+            || (stream == AudioSystem::FM) 
 #endif
             || force) {
         mOutputs.valueFor(output)->mCurVolume[stream] = volume;
@@ -1604,8 +1592,7 @@ status_t AudioPolicyManager::checkAndSetVolume(int stream, int index, audio_io_h
             voiceVolume = 1.0;
         }
 
-        if ((voiceVolume != mLastVoiceVolume && (output == mPrimaryOutput ||
-           isDirectOutput(output)))
+        if ((voiceVolume != mLastVoiceVolume && output == mPrimaryOutput) 
 #ifdef QCOM_FM_ENABLED
 	    && (!(mAvailableOutputDevices & AUDIO_DEVICE_OUT_FM))
 #endif

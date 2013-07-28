@@ -56,9 +56,6 @@ public:
 
         virtual void setPhoneState(int state);
 
-        // returns true if give output is direct output
-        bool isDirectOutput(audio_io_handle_t output);
-
         virtual audio_devices_t getDeviceForVolume(audio_devices_t device);
 
         virtual uint32_t  checkDeviceMuteStrategies(AudioOutputDescriptor *outputDesc,

@@ -40,7 +40,6 @@ PRODUCT_PACKAGES += \
     init.lge-shared.rc \
     init.target.rc \
     init.lge.usb.rc \
-    fstab.lproj \
     init.lproj.bt.sh \
     hcidump.sh \
     init.qcom.post_boot.sh \
@@ -126,8 +125,8 @@ PRODUCT_PACKAGES += \
     libaudioutils \
     audio.a2dp.default \
     audio.usb.default \
-#    audio.primary.msm7x27a \
-#    audio_policy.msm7x27a \
+    audio.primary.msm7x27a \
+    audio_policy.msm7x27a
 
 PRODUCT_PACKAGES += \
     Email2 \
@@ -185,7 +184,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ro.debuggable=1 \
     hwui.render_dirty_regions=true \
     ro.max.fling_velocity=4000 \
-    sys.mem.max_hidden_apps=10
+    ro.sys.fw.bg_apps_limit=10
 
 # Enable Torch
 PRODUCT_PACKAGES += Torch
