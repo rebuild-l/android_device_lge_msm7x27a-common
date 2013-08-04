@@ -41,7 +41,6 @@ PRODUCT_PACKAGES += \
     init.target.rc \
     init.lge.usb.rc \
     init.lproj.bt.sh \
-    hcidump.sh \
     init.qcom.post_boot.sh \
     init.qcom.efs.sync.sh
 
@@ -180,7 +179,6 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ro.adb.secure=0 \
     persist.sys.usb.config=mtp,adb \
     persist.service.adb.enable=1 \
-    ro.debuggable=1 \
     hwui.render_dirty_regions=true \
     ro.max.fling_velocity=4000 \
     ro.sys.fw.bg_apps_limit=10
