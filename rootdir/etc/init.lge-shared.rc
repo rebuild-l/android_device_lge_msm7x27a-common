@@ -296,101 +296,10 @@ service config_bluetooth /system/bin/sh /system/etc/init.lproj.bt.sh "onboot"
     user root
     oneshot
 
-on property:ro.qc.bluetooth.stack=bluez
-    start dbus
-
 service hciattach /system/bin/logwrapper /system/bin/sh /system/etc/init.lproj.bt.sh
     class late_start
     user bluetooth
     group qcom_oncrpc bluetooth net_bt_admin net_bt_stack system
-    disabled
-    oneshot
-
-# +s LG_BTUI_ATCMD_DUTMODE munho2.lee@lge.com 110902, using QCT BT solution
-service hciattach_dut /system/bin/logwrapper /system/bin/hciattach -n /dev/ttyHS0 qualcomm-ibs 3000000
-    class late_start
-    user bluetooth
-    group qcom_oncrpc bluetooth net_bt_admin
-    disabled
-# +e LG_BTUI_ATCMD_DUTMODE
-
-service bt-sap /system/bin/sapd 15
-    user bluetooth
-    group bluetooth net_bt_admin
-    class late_start
-    disabled
-    oneshot
-
-#+s LGBT_COMMON_FUNCTION_BRINGUP - jeonghoon.lim@lge.com, 2011-12-10
-service bluetoothd /system/bin/logwrapper /system/bin/bluetoothd -n -d
-    class late_start
-    socket bluetooth stream 660 bluetooth bluetooth
-    socket dbus_bluetooth stream 660 bluetooth bluetooth
-    # init.rc does not yet support applying capabilities, so run as root and
-    # let bluetoothd drop uid to bluetooth with the right linux capabilities
-    group bluetooth net_bt_admin misc net_bt_stack
-    disabled
-
-service dbus /system/bin/dbus-daemon --system --nofork
-    class core
-    socket dbus stream 660 bluetooth bluetooth
-    user bluetooth
-    group bluetooth net_bt_admin
-    disabled
-
-service hfag /system/bin/sdptool add --channel=10 HFAG
-    class late_start
-    user bluetooth
-    group bluetooth net_bt_admin
-    disabled
-    oneshot
-
-service hsag /system/bin/sdptool add --channel=11 HSAG
-    class late_start
-    user bluetooth
-    group bluetooth net_bt_admin
-    disabled
-    oneshot
-
-service opush /system/bin/sdptool add --psm=5255 --channel=12 OPUSH
-    class late_start
-    user bluetooth
-    group bluetooth net_bt_admin
-    disabled
-    oneshot
-
-service pbap /system/bin/sdptool add --channel=19 PBAP
-    class late_start
-    user bluetooth
-    group bluetooth net_bt_admin
-    disabled
-    oneshot
-
-service ftp /system/bin/sdptool add --psm=5257 --channel=20 FTP
-    class late_start
-    user bluetooth
-    group bluetooth net_bt_admin
-    disabled
-    oneshot
-
-service map0 /system/bin/sdptool add --channel=16 MAS0
-    class late_start
-    user bluetooth
-    group bluetooth net_bt_admin
-    disabled
-    oneshot
-
-service map1 /system/bin/sdptool add --channel=17 MAS1
-    class late_start
-    user bluetooth
-    group bluetooth net_bt_admin
-    disabled
-    oneshot
-#+e LGBT_COMMON_FUNCTION_BRINGUP
-
-service hcidump /system/bin/sh /system/etc/hcidump.sh
-    user bluetooth
-    group bluetooth system net_bt_admin net_admin
     disabled
     oneshot
 
@@ -489,12 +398,6 @@ on property:dev.bootcomplete=1
    start setapversion
    class_start late_start
 
-service hcidump /system/bin/sh /system/etc/hcidump.sh
-    user bluetooth
-    group bluetooth system net_bt_admin net_admin
-    disabled
-    oneshot
-
 service charger /charger
     class charger
     user root
@@ -507,18 +410,6 @@ service hostapd /system/bin/hostapd -dddd /data/misc/wifi/hostapd.conf
     group root
     oneshot
     disabled
-
-# suhui.kim@lge.com for bluez logs
-#service bluetoothd /system/bin/bluetoothd -n
-service bluetoothd /system/bin/logwrapper /system/bin/bluetoothd -n -d
-    class late_start
-    socket bluetooth stream 660 bluetooth bluetooth
-    socket dbus_bluetooth stream 660 bluetooth bluetooth
-    # init.rc does not yet support applying capabilities, so run as root and
-    # let bluetoothd drop uid to bluetooth with the right linux capabilities
-    group bluetooth net_bt_admin misc net_bt_stack
-    disabled
-
 
 #LGE_CHANGE_S[jyothishre.nk@lge.com]20121005:Adding logger support
 service logcat-main /system/bin/logcat -v time -b main -f /data/logger/main.log -n 4 -r 4096

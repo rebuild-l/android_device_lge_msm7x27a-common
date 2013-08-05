@@ -60,14 +60,6 @@ PRODUCT_PACKAGES += \
 # Power Hal
 PRODUCT_PACKAGES += power.$(TARGET_BOOTLOADER_BOARD_NAME)
 
-PRODUCT_PACKAGES += \
-    bluetoothd \
-    libbluetoothd \
-    hcitool \
-    hciconfig \
-    hciattach \
-    javax.btobex
-
 # off-mode charging
 PRODUCT_PACKAGES += \
     charger \
