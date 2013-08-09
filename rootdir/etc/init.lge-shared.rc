@@ -361,8 +361,16 @@ on property:wlan.driver.status=unloaded
 on property:wlan.driver.status=ok
    write /sys/devices/platform/msm_sdcc.2/polling 0
 
+service dhcpcd_bt-pan /system/bin/dhcpcd -ABKL
+    disabled
+    oneshot
+
 service dhcpcd_wlan0 /system/bin/dhcpcd -aBKAL
     class late_start
+    disabled
+    oneshot
+
+service iprenew_bt-pan /system/bin/dhcpcd -n
     disabled
     oneshot
 
