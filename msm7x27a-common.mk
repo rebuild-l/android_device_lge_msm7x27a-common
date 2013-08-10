@@ -71,7 +71,8 @@ PRODUCT_PACKAGES += \
     libqdMetaData
 
 # Power Hal
-PRODUCT_PACKAGES += power.$(TARGET_BOOTLOADER_BOARD_NAME)
+PRODUCT_PACKAGES += \
+    power.msm7x27a
 
 PRODUCT_PACKAGES += \
     bluetoothd \
