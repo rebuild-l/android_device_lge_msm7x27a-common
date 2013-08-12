@@ -288,11 +288,6 @@ service rmt_storage /system/bin/rmt_storage /dev/block/mmcblk0p10 /dev/block/mmc
     user root
     disabled
 
-service config_bluetooth /system/bin/sh /system/etc/init.lproj.bt.sh "onboot"
-    class core
-    user root
-    oneshot
-
 service hciattach /system/bin/logwrapper /system/bin/sh /system/etc/init.lproj.bt.sh
     class late_start
     user bluetooth

@@ -25,12 +25,10 @@ failed ()
 
 POWER_CLASS=`getprop qcom.bt.dev_power_class`
 TRANSPORT=`getprop ro.qualcomm.bt.hci_transport`
+BDADDR=`getprop net.btdut.address`
 
 #find the transport type
 logi "Transport : $TRANSPORT"
-
-#load bd addr
-BDADDR=`/system/bin/cat /data/etc/bluetooth_bdaddr`
 
 setprop bluetooth.status off
 
@@ -52,7 +50,7 @@ if [$BDADDR == ""]
 then
 logwrapper /system/bin/hci_qcomm_init -e $PWR_CLASS -vv
 else
-logwrapper /system/bin/hci_qcomm_init --enable-clock-sharing -b $BDADDR -e $PWR_CLASS -vv
+logwrapper /system/bin/hci_qcomm_init -b $BDADDR -e $PWR_CLASS -vv
 fi
 
 case $? in
