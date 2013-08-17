@@ -52,6 +52,9 @@ BOARD_EGL_CFG := device/lge/msm7x27a-common/egl.cfg
 # Media 
 TARGET_QCOM_MEDIA_VARIANT := legacy
 
+# Add QC Video Enhancements flag
+TARGET_ENABLE_QC_AV_ENHANCEMENTS := true
+
 # bluetooth
 BOARD_HAVE_BLUETOOTH := true
 
