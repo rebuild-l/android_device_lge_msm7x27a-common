@@ -31,6 +31,27 @@ on boot
    start qcamerasvr
    start gpu_dcvsd
 
+#LGE_CHANGE_S [jyothishre.nk@lge.com] 20120926:Use setup_fs to create Filesystem
+on emmc-fs
+    mount_all /fstab.m4
+
+    wait /dev/block/platform/msm_sdcc.3/by-num/p15
+    exec /system/bin/e2fsck -fy /dev/block/platform/msm_sdcc.3/by-num/p15
+    mount ext4 /dev/block/platform/msm_sdcc.3/by-num/p15 /persist nosuid nodev barrier=1
+
+    wait /dev/block/platform/msm_sdcc.3/by-num/p16
+    exec /system/bin/e2fsck -fy /dev/block/platform/msm_sdcc.3/by-num/p16
+    mount ext4 /dev/block/platform/msm_sdcc.3/by-num/p16 /cache nosuid nodev barrier=1
+    
+    wait /dev/block/platform/msm_sdcc.3/by-num/p18
+    exec /system/bin/e2fsck -fy /dev/block/platform/msm_sdcc.3/by-num/p18
+    mount ext4 /dev/block/platform/msm_sdcc.3/by-num/p18 /persist-lg nosuid nodev barrier=1
+
+    wait /dev/block/platform/msm_sdcc.3/by-num/p23
+    exec /system/bin/e2fsck -fy /dev/block/platform/msm_sdcc.3/by-num/p23
+    mount ext4 /dev/block/platform/msm_sdcc.3/by-num/p23 /mpt nosuid nodev barrier=1
+#LGE_CHANGE_E [jyothishre.nk@lge.com] 20120926
+
 #start camera server as daemon
 service qcamerasvr /system/bin/mm-qcamera-daemon
         class late_start
