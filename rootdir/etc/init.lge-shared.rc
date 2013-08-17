@@ -21,6 +21,14 @@ on early-init
     export SECONDARY_STORAGE /storage/sdcard1
 
 on init
+
+   exec /sbin/setup_fs \
+	/dev/block/platform/msm_sdcc.3/by-num/p20 \
+	/dev/block/platform/msm_sdcc.3/by-num/p16 \
+	/dev/block/platform/msm_sdcc.3/by-num/p18 \
+	/dev/block/platform/msm_sdcc.3/by-num/p23 \
+	no_reboot
+
 # Backward compatibility
     symlink /system/bin /bin
 
@@ -38,7 +46,6 @@ on fs
     mkdir /persist 0771 system system
     mkdir /persist-lg  0771 system system
     mkdir /mpt 0771 system system
-    mount_all fstab.lproj
 
 
 # LGE_CHANGE_E [jyothishre.nk@lge.com] 20120215
