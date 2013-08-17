@@ -32,8 +32,7 @@ on boot
    start gpu_dcvsd
 
 #LGE_CHANGE_S [jyothishre.nk@lge.com] 20120926:Use setup_fs to create Filesystem
-on emmc-fs
-    mount_all /fstab.m4
+on fs
 
     wait /dev/block/platform/msm_sdcc.3/by-num/p15
     exec /system/bin/e2fsck -fy /dev/block/platform/msm_sdcc.3/by-num/p15
