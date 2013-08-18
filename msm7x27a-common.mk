@@ -195,7 +195,8 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ro.debuggable=1 \
     hwui.render_dirty_regions=true \
     ro.max.fling_velocity=4000 \
-    sys.mem.max_hidden_apps=10
+    sys.mem.max_hidden_apps=10 \
+    debug.camcorder.disablemeta=1 
 
 # Enable Torch
 PRODUCT_PACKAGES += Torch
