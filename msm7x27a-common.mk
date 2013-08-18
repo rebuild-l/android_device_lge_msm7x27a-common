@@ -58,10 +58,6 @@ PRODUCT_PACKAGES += \
     copybit.msm7x27a \
     libqdMetaData
 
-# Power Hal
-PRODUCT_PACKAGES += \
-    power.msm7x27a
-
 # off-mode charging
 PRODUCT_PACKAGES += \
     charger \
