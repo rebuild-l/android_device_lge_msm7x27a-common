@@ -177,6 +177,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
     sys.mem.max_hidden_apps=10 \
     debug.gr.numframebuffers=3
     ro.bq.gpu_to_cpu_unsupported=1
+    dalvik.vm.dexopt-data-only=1
 
 # Enable Torch
 PRODUCT_PACKAGES += Torch
