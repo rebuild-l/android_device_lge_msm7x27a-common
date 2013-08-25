@@ -113,9 +113,6 @@ on post-fs-data
     mkdir /data/wpstiles/ 0755 shell
     mkdir /data/wiper 0755 location qcom_oncrpc
 
-    #Create directories for gpsone_daemon services
-    mkdir /data/misc/gpsone_d 0770 system system
-
     #Create directories for QuIPS
     mkdir /data/misc/quipc 0770 gps system
 
@@ -123,9 +120,6 @@ on post-fs-data
     mkdir /data/misc/location 0770 gps gps
     mkdir /data/misc/location/mq 0770 gps gps
     mkdir /data/misc/location/xtwifi 0770 gps gps
-
-    #Create directory from IMS services
-    mkdir /data/shared 0755
 
     #Provide the access to hostapd.conf only to root and group
     chmod 0660 /data/hostapd/hostapd.conf
@@ -150,6 +144,10 @@ on post-fs-data
      # Create directory from IMS services
     mkdir /data/shared 0755
 
+    #Create directory for FOTA
+    mkdir /data/fota 0771
+    chown system system /data/fota
+
     # Log Service [START]
     mkdir /data/logger 0771 system system
     chown system system /data/logger
@@ -167,6 +165,8 @@ on post-fs-data
     copy /proc/last_kmsg /data/dontpanic/last_kmsg
     chown root log /data/dontpanic/last_kmsg
     chmod 0640 /data/dontpanic/last_kmsg
+
+    setprop vold.post_fs_data_done 1
 
 on boot
    # bluetooth
@@ -186,8 +186,8 @@ on boot
     chmod 0660 /sys/devices/platform/msm_serial_hs.0/clock
     chmod 0444 /sys/devices/platform/msm_hsusb/gadget/usb_state
 
-    # turn off bluetooth at startup
-    write /sys/class/rfkill/rfkill0/state 0
+    chmod 0660 /dev/ttyHS2
+    chown bluetooth bluetooth /dev/ttyHS2
 
    #port-bridge
     chmod 0660 /dev/smd0
@@ -286,10 +286,20 @@ service ril-daemon1 /system/bin/rild -c 1
     socket rild-debug1 stream 660 radio system
     user root
     disabled
-    group radio cache inet misc audio sdcard_rw qcom_oncrpc diag
+    group radio cache inet misc audio sdcard_r sdcard_rw qcom_oncrpc diag qcom_diag log
 
 service sdcard /system/bin/sdcard /data/media /storage/sdcard0 1023 1023
     class late_start
+
+on property:ro.fuse_sdcard=true
+    start sdcard
+
+# This will make sure that sdcard service starts as late_start.
+on nonencrypted
+    setprop ro.fuse_sdcard ${persist.fuse_sdcard}
+
+on property:vold.decrypt=trigger_restart_framework
+    setprop ro.fuse_sdcard ${persist.fuse_sdcard}
 
 service rmt_storage /system/bin/rmt_storage /dev/block/mmcblk0p10 /dev/block/mmcblk0p11 /dev/block/mmcblk0p17
     class core
@@ -354,6 +364,12 @@ on property:init.svc.wpa_supplicant=stopped
 on property:bluetooth.isEnabled=true
     start btwlancoex
     write /sys/class/bluetooth/hci0/idle_timeout 7000
+
+on property:bluetooth.sap.status=running
+    start bt-sap
+
+on property:bluetooth.sap.status=stopped
+    stop bt-sap
 
 on property:wlan.driver.status=loading
    write /sys/devices/platform/msm_sdcc.2/polling 1
