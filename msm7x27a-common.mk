@@ -166,7 +166,6 @@ PRODUCT_PROPERTY_OVERRIDES += \
     debug.composition.type=mdp \
     ro.opengles.version=131072 \
     com.qc.hardware=true \
-    persist.sys.use_dithering=1 \
     hwui.render_dirty_regions=false \
     wifi.interface=wlan0 \
     ro.adb.secure=0 \
@@ -175,8 +174,8 @@ PRODUCT_PROPERTY_OVERRIDES += \
     hwui.render_dirty_regions=true \
     ro.max.fling_velocity=4000 \
     sys.mem.max_hidden_apps=10 \
-    debug.gr.numframebuffers=3
-    ro.bq.gpu_to_cpu_unsupported=1
+    debug.gr.numframebuffers=3 \
+    ro.bq.gpu_to_cpu_unsupported=1 \
     dalvik.vm.dexopt-data-only=1
 
 # Enable Torch
