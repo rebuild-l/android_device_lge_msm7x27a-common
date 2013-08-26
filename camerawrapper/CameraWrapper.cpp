@@ -212,14 +212,12 @@ int camera_preview_enabled(struct camera_device * device)
     return VENDOR_CALL(device, preview_enabled);
 }
 
-/*
 int camera_store_meta_data_in_buffers(struct camera_device * device, int enable)
 {
     ALOGV("%s", __FUNCTION__);
     ALOGV("%s->%08X->%08X", __FUNCTION__, (uintptr_t)device, (uintptr_t)(((wrapper_camera_device_t*)device)->vendor));
     return -1;
 }
-*/
 
 int camera_start_recording(struct camera_device * device)
 {
@@ -511,7 +509,7 @@ int camera_device_open(const hw_module_t* module, const char* name,
         camera_ops->start_preview = camera_start_preview;
         camera_ops->stop_preview = camera_stop_preview;
         camera_ops->preview_enabled = camera_preview_enabled;
-        camera_ops->store_meta_data_in_buffers = NULL; //camera_store_meta_data_in_buffers;
+        camera_ops->store_meta_data_in_buffers = camera_store_meta_data_in_buffers;
         camera_ops->start_recording = camera_start_recording;
         camera_ops->stop_recording = camera_stop_recording;
         camera_ops->recording_enabled = camera_recording_enabled;
