@@ -55,7 +55,8 @@ PRODUCT_PACKAGES += \
     init.lproj.bt.sh \
     hcidump.sh \
     init.qcom.post_boot.sh \
-    init.qcom.efs.sync.sh
+    init.qcom.efs.sync.sh \
+    init.lge.target.sh
 
 # Wifi
 PRODUCT_COPY_FILES += \
