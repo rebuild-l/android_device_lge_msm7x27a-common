@@ -42,7 +42,8 @@ PRODUCT_PACKAGES += \
     init.lge.usb.rc \
     init.lproj.bt.sh \
     init.qcom.post_boot.sh \
-    init.qcom.efs.sync.sh
+    init.qcom.efs.sync.sh \
+    init.lge.target.sh
 
 # Wifi
 PRODUCT_COPY_FILES += \

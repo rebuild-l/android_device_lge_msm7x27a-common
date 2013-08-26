@@ -27,6 +27,16 @@
 #
 #
 
+on early-boot
+   start targetprop-set
+
+service targetprop-set /system/bin/sh /system/etc/init.lge.target.sh
+    class late_start
+    user root
+    critical
+    disabled
+    oneshot
+
 on boot
    start qcamerasvr
    start gpu_dcvsd
