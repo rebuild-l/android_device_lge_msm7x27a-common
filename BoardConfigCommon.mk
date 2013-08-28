@@ -68,6 +68,7 @@ ENABLE_WEBGL := true
 TARGET_FORCE_CPU_UPLOAD := true
 
 # audio 
+TARGET_QCOM_AUDIO_VARIANT := caf
 TARGET_PROVIDES_LIBAUDIO := true
 
 # to enable the GPS HAL
