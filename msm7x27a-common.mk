@@ -124,6 +124,11 @@ PRODUCT_PACKAGES += \
     Email2 \
     Exchange2
 
+PRODUCT_PROPERTY_OVERRIDES += \
+    lpa.decode=true
+    audio.decoder_override_check=true
+    use.non-omx.mp3.decoder=true
+    use.non-omx.aac.decoder=true
 
 # Do not power down SIM card when modem is sent to Low Power Mode.
 PRODUCT_PROPERTY_OVERRIDES += \
