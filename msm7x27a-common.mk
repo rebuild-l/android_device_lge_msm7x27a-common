@@ -120,14 +120,10 @@ PRODUCT_PACKAGES += \
     audio.primary.msm7x27a \
     audio_policy.msm7x27a
 
-PRODUCT_PACKAGES += \
-    Email2 \
-    Exchange2
-
 PRODUCT_PROPERTY_OVERRIDES += \
-    lpa.decode=true
-    audio.decoder_override_check=true
-    use.non-omx.mp3.decoder=true
+    lpa.decode=true \
+    audio.decoder_override_check=true \
+    use.non-omx.mp3.decoder=true \
     use.non-omx.aac.decoder=true
 
 # Do not power down SIM card when modem is sent to Low Power Mode.
@@ -149,15 +145,6 @@ PRODUCT_PROPERTY_OVERRIDES += \
 PRODUCT_PROPERTY_OVERRIDES += \
     rild.libpath=/system/lib/libril-qc-1.so \
     rild.libargs=-d/dev/smd0 \
-    persist.rild.nitz_plmn= \
-    persist.rild.nitz_long_ons_0= \
-    persist.rild.nitz_long_ons_1= \
-    persist.rild.nitz_long_ons_2= \
-    persist.rild.nitz_long_ons_3= \
-    persist.rild.nitz_short_ons_0= \
-    persist.rild.nitz_short_ons_1= \
-    persist.rild.nitz_short_ons_2= \
-    persist.rild.nitz_short_ons_3= \
     ril.subscription.types=NV,RUIM \
     DEVICE_PROVISIONED=1 \
     keyguard.no_require_sim=1 
@@ -182,8 +169,17 @@ PRODUCT_PROPERTY_OVERRIDES += \
     sys.mem.max_hidden_apps=10 \
     debug.gr.numframebuffers=3 \
     ro.bq.gpu_to_cpu_unsupported=1 \
-    dalvik.vm.dexopt-data-only=1 \
-    debug.camcorder.disablemeta=1
+    dalvik.vm.dexopt-data-only=1
+
+PRODUCT_PROPERTY_OVERRIDES += \
+   media.stagefright.enable-player=true \
+   media.stagefright.enable-meta=false \
+   media.stagefright.enable-scan=true \
+   media.stagefright.enable-http=true \
+   media.stagefright.enable-fma2dp=true \
+   media.stagefright.enable-aac=true \
+   media.stagefright.enable-qcp=true \
+   debug.camcorder.disablemeta=1
 
 # Enable Torch
 PRODUCT_PACKAGES += Torch
