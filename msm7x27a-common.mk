@@ -169,15 +169,6 @@ PRODUCT_PROPERTY_OVERRIDES += \
 PRODUCT_PROPERTY_OVERRIDES += \
     rild.libpath=/system/lib/libril-qc-1.so \
     rild.libargs=-d/dev/smd0 \
-    persist.rild.nitz_plmn= \
-    persist.rild.nitz_long_ons_0= \
-    persist.rild.nitz_long_ons_1= \
-    persist.rild.nitz_long_ons_2= \
-    persist.rild.nitz_long_ons_3= \
-    persist.rild.nitz_short_ons_0= \
-    persist.rild.nitz_short_ons_1= \
-    persist.rild.nitz_short_ons_2= \
-    persist.rild.nitz_short_ons_3= \
     ril.subscription.types=NV,RUIM \
     DEVICE_PROVISIONED=1 \
     keyguard.no_require_sim=1 
@@ -202,7 +193,17 @@ PRODUCT_PROPERTY_OVERRIDES += \
     hwui.render_dirty_regions=true \
     ro.max.fling_velocity=4000 \
     sys.mem.max_hidden_apps=10 \
-    debug.camcorder.disablemeta=1 
+    debug.gr.numframebuffers=3
+
+PRODUCT_PROPERTY_OVERRIDES += \
+   media.stagefright.enable-player=true \
+   media.stagefright.enable-meta=false \
+   media.stagefright.enable-scan=true \
+   media.stagefright.enable-http=true \
+   media.stagefright.enable-fma2dp=true \
+   media.stagefright.enable-aac=true \
+   media.stagefright.enable-qcp=true \
+   debug.camcorder.disablemeta=1
 
 # Enable Torch
 PRODUCT_PACKAGES += Torch
