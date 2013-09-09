@@ -34,13 +34,13 @@ PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.touchscreen.multitouch.jazzhand.xml:system/etc/permissions/android.hardware.touchscreen.multitouch.jazzhand.xml
 
 PRODUCT_PACKAGES += \
-    lgapversion
+    lgapversion \
+    hwmac
 
 PRODUCT_PACKAGES += \
     init.lge-shared.rc \
     init.target.rc \
     init.lge.usb.rc \
-    init.lproj.bt.sh \
     init.qcom.post_boot.sh \
     init.qcom.efs.sync.sh \
     init.lge.target.sh
@@ -150,7 +150,8 @@ PRODUCT_PROPERTY_OVERRIDES += \
     keyguard.no_require_sim=1 
 
 PRODUCT_PROPERTY_OVERRIDES += \
-    ro.qualcomm.bt.hci_transport=uart
+    ro.qualcomm.bt.hci_transport=uart \
+    ro.bt.bdaddr_path=/data/misc/bluedroid/bdaddr
 
 # Common properties
 PRODUCT_PROPERTY_OVERRIDES += \

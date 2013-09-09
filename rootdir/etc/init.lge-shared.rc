@@ -379,12 +379,17 @@ on property:bluetooth.sap.status=running
 on property:bluetooth.sap.status=stopped
     stop bt-sap
 
+service hwmac /system/bin/hwmac
+    class main
+    oneshot
+
 on property:wlan.driver.status=loading
    write /sys/devices/platform/msm_sdcc.2/polling 1
 on property:wlan.driver.status=failed
    write /sys/devices/platform/msm_sdcc.2/polling 0
 on property:wlan.driver.status=unloaded
    write /sys/devices/platform/msm_sdcc.2/polling 0
+   start hwmac
 on property:wlan.driver.status=ok
    write /sys/devices/platform/msm_sdcc.2/polling 0
 
