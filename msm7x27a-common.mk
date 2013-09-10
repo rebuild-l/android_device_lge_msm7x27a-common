@@ -13,16 +13,6 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/AudioFilter.csv:system/etc/AudioFilter.csv \
     $(LOCAL_PATH)/configs/vold.fstab:system/etc/vold.fstab
 
-# BT
-PRODUCT_COPY_FILES += \
-    system/bluetooth/data/audio.conf:system/etc/bluetooth/audio.conf \
-    system/bluetooth/data/auto_pairing.conf:system/etc/bluetooth/auto_pairing.conf \
-    system/bluetooth/data/blacklist.conf:system/etc/bluetooth/blacklist.conf \
-    system/bluetooth/data/input.conf:system/etc/bluetooth/input.conf \
-    system/bluetooth/data/main.le.conf:system/etc/bluetooth/main.conf \
-    system/bluetooth/data/network.conf:system/etc/bluetooth/network.conf \
-    system/bluetooth/data/stack.conf:system/etc/bluetooth/stack.conf
-
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/media_codecs.xml:system/etc/media_codecs.xml \
     $(LOCAL_PATH)/configs/audio_policy.conf::system/etc/audio_policy.conf
@@ -45,15 +35,14 @@ PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.touchscreen.multitouch.jazzhand.xml:system/etc/permissions/android.hardware.touchscreen.multitouch.jazzhand.xml
 
 PRODUCT_PACKAGES += \
-    lgapversion
+    lgapversion \
+    hwmac
 
 PRODUCT_PACKAGES += \
     init.lge-shared.rc \
     init.target.rc \
     init.lge.usb.rc \
     fstab.lproj \
-    init.lproj.bt.sh \
-    hcidump.sh \
     init.qcom.post_boot.sh \
     init.qcom.efs.sync.sh \
     init.lge.target.sh
@@ -72,14 +61,6 @@ PRODUCT_PACKAGES += \
 
 # Power Hal
 PRODUCT_PACKAGES += power.$(TARGET_BOOTLOADER_BOARD_NAME)
-
-PRODUCT_PACKAGES += \
-    bluetoothd \
-    libbluetoothd \
-    hcitool \
-    hciconfig \
-    hciattach \
-    javax.btobex
 
 # off-mode charging
 PRODUCT_PACKAGES += \
