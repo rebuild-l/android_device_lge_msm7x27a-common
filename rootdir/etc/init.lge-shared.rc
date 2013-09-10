@@ -379,17 +379,12 @@ on property:bluetooth.sap.status=running
 on property:bluetooth.sap.status=stopped
     stop bt-sap
 
-service hwmac /system/bin/hwmac
-    class main
-    oneshot
-
 on property:wlan.driver.status=loading
    write /sys/devices/platform/msm_sdcc.2/polling 1
 on property:wlan.driver.status=failed
    write /sys/devices/platform/msm_sdcc.2/polling 0
 on property:wlan.driver.status=unloaded
    write /sys/devices/platform/msm_sdcc.2/polling 0
-   start hwmac
 on property:wlan.driver.status=ok
    write /sys/devices/platform/msm_sdcc.2/polling 0
 
@@ -408,12 +403,6 @@ service iprenew_bt-pan /system/bin/dhcpcd -n
 
 service iprenew_wlan0 /system/bin/dhcpcd -n
     class late_start
-    disabled
-    oneshot
-
-service qcom-post-boot /system/bin/sh /system/etc/init.qcom.post_boot.sh
-    class late_start
-    user root
     disabled
     oneshot
 
