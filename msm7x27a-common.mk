@@ -57,7 +57,8 @@ PRODUCT_PACKAGES += \
     liboverlay \
     libtilerenderer \
     gralloc.msm7x27a \
-    copybit.msm7x27a
+    copybit.msm7x27a \
+    libqdMetaData
 
 # Power Hal
 PRODUCT_PACKAGES += power.$(TARGET_BOOTLOADER_BOARD_NAME)
@@ -160,7 +161,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
 PRODUCT_PROPERTY_OVERRIDES += \
     debug.fb.rgb565=0 \
     debug.sf.hw=1 \
-    debug.composition.type=dyn \
+    debug.composition.type=mdp \
     ro.opengles.version=131072 \
     com.qc.hardware=true \
     persist.sys.use_dithering=1 \
@@ -173,8 +174,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
     hwui.render_dirty_regions=true \
     ro.max.fling_velocity=4000 \
     sys.mem.max_hidden_apps=10 \
-    debug.gr.numframebuffers=3 \
-    debug.gralloc.map_fb_memory=true
+    debug.gr.numframebuffers=3
 
 PRODUCT_PROPERTY_OVERRIDES += \
    media.stagefright.enable-player=true \
