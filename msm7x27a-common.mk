@@ -174,7 +174,8 @@ PRODUCT_PROPERTY_OVERRIDES += \
     hwui.render_dirty_regions=true \
     ro.max.fling_velocity=4000 \
     sys.mem.max_hidden_apps=10 \
-    debug.gr.numframebuffers=3
+    debug.gr.numframebuffers=3 \
+    ro.fuse_sdcard=true
 
 PRODUCT_PROPERTY_OVERRIDES += \
    media.stagefright.enable-player=true \
