@@ -63,7 +63,6 @@ enum ion_heap_type {
              maintenance when the buffer is
              mapped for dma */
 
-
 /**
  * These are the only ids that should be used for Ion heap ids.
  * The ids listed are the order in which allocation will be attempted
@@ -139,11 +138,11 @@ enum cp_mem_usage {
 #define CACHED          1
 #define UNCACHED        0
 
-#define ION_CACHE_SHIFT 0
+#define ION_SET_CACHED(__cache)		(__cache | ION_FLAG_CACHED)
+#define ION_SET_UNCACHED(__cache)	(__cache & ~ION_FLAG_CACHED)
 
-#define ION_SET_CACHE(__cache)  ((__cache) << ION_CACHE_SHIFT)
+#define ION_IS_CACHED(__flags)	((__flags) & ION_FLAG_CACHED)
 
-#define ION_IS_CACHED(__flags)	((__flags) & (1 << ION_CACHE_SHIFT))
 
 /*
  * This flag allows clients when mapping into the IOMMU to specify to
@@ -335,14 +334,18 @@ void ion_client_destroy(struct ion_client *client);
  * @len:	size of the allocation
  * @align:	requested allocation alignment, lots of hardware blocks have
  *		alignment requirements of some kind
- * @flags:	mask of heaps to allocate from, if multiple bits are set
+ * @heap_mask:	mask of heaps to allocate from, if multiple bits are set
  *		heaps will be tried in order from lowest to highest order bit
+ * @flags:	heap flags, the low 16 bits are consumed by ion, the high 16
+ *		bits are passed on to the respective heap and can be heap
+ *		custom
  *
  * Allocate memory in one of the heaps provided in heap mask and return
  * an opaque handle to it.
  */
 struct ion_handle *ion_alloc(struct ion_client *client, size_t len,
-			     size_t align, unsigned int flags);
+			     size_t align, unsigned int heap_mask,
+			     unsigned int flags);
 
 /**
  * ion_free - free a handle
@@ -393,8 +396,7 @@ struct sg_table *ion_sg_table(struct ion_client *client,
  * can be used to access this address. If no flags are specified, this
  * will return a non-secure uncached mapping.
  */
-void *ion_map_kernel(struct ion_client *client, struct ion_handle *handle,
-			unsigned long flags);
+void *ion_map_kernel(struct ion_client *client, struct ion_handle *handle);
 
 /**
  * ion_unmap_kernel() - destroy a kernel mapping for a handle
@@ -448,7 +450,6 @@ int ion_handle_get_flags(struct ion_client *client, struct ion_handle *handle,
  *		address space will be mapped to a dummy buffer.
  * @iova - pointer to store the iova address
  * @buffer_size - pointer to store the size of the buffer
- * @flags - flags for options to map
  * @iommu_flags - flags specific to the iommu.
  *
  * Maps the handle into the iova space specified via domain number. Iova
@@ -624,7 +625,9 @@ static inline struct ion_client *msm_ion_client_create(unsigned int heap_mask,
 static inline void ion_client_destroy(struct ion_client *client) { }
 
 static inline struct ion_handle *ion_alloc(struct ion_client *client,
-			size_t len, size_t align, unsigned int flags)
+					size_t len, size_t align,
+					unsigned int heap_mask,
+					unsigned int flags)
 {
 	return ERR_PTR(-ENODEV);
 }
