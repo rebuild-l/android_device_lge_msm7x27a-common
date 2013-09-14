@@ -121,10 +121,7 @@ PRODUCT_PACKAGES += \
     audio_policy.msm7x27a
 
 PRODUCT_PROPERTY_OVERRIDES += \
-    lpa.decode=true \
-    audio.decoder_override_check=true \
-    use.non-omx.mp3.decoder=true \
-    use.non-omx.aac.decoder=true
+    lpa.decode=true
 
 # Do not power down SIM card when modem is sent to Low Power Mode.
 PRODUCT_PROPERTY_OVERRIDES += \
