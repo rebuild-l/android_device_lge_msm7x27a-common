@@ -53,7 +53,6 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PACKAGES += \
     libgenlock \
     liboverlay \
-    libtilerenderer \
     gralloc.msm7x27a \
     copybit.msm7x27a \
     libqdMetaData
