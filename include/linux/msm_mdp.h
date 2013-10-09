@@ -95,6 +95,7 @@ enum {
 	MDP_Y_CRCB_H2V2,  /* Y and CrCb, pseudo planer w/ Cr is in MSB */
 	MDP_YCBYCR_H2V1,  /* YCbYCr interleave */
 	MDP_YCRYCB_H2V1,  /* YCrYCb interleave */
+	MDP_CBYCRY_H2V1,  /* CbYCrY interleave */
 	MDP_Y_CRCB_H2V1,  /* Y and CrCb, pseduo planer w/ Cr is in MSB */
 	MDP_Y_CBCR_H2V1,   /* Y and CrCb, pseduo planer w/ Cr is in MSB */
 	MDP_Y_CRCB_H1V2,
@@ -112,6 +113,17 @@ enum {
 	MDP_YCRCB_H1V1,   /* YCrCb interleave */
 	MDP_YCBCR_H1V1,   /* YCbCr interleave */
 	MDP_BGR_565,      /* BGR 565 planer */
+	MDP_BGR_888,      /* BGR 888 */
+	MDP_Y_CBCR_H2V2_VENUS,
+	MDP_BGRX_8888,   /* BGRX 8888 */
+	MDP_RGBA_8888_TILE,	/* RGBA 8888 in tile format */
+	MDP_ARGB_8888_TILE,	/* ARGB 8888 in tile format */
+	MDP_ABGR_8888_TILE,	/* ABGR 8888 in tile format */
+	MDP_BGRA_8888_TILE,	/* BGRA 8888 in tile format */
+	MDP_RGBX_8888_TILE,	/* RGBX 8888 in tile format */
+	MDP_XRGB_8888_TILE,	/* XRGB 8888 in tile format */
+	MDP_XBGR_8888_TILE,	/* XBGR 8888 in tile format */
+	MDP_BGRX_8888_TILE,	/* BGRX 8888 in tile format */
 	MDP_IMGTYPE_LIMIT,
 	MDP_RGB_BORDERFILL,	/* border fill pipe */
 	MDP_FB_FORMAT = MDP_IMGTYPE2_START,    /* framebuffer format */
@@ -337,11 +349,14 @@ struct mdp_histogram {
 
 /*
 
-	mdp_block_type defines the identifiers for each of pipes in MDP 4.3
+	mdp_block_type defines the identifiers for pipes in MDP 4.3 and up
 
 	MDP_BLOCK_RESERVED is provided for backward compatibility and is
 	deprecated. It corresponds to DMA_P. So MDP_BLOCK_DMA_P should be used
 	instead.
+
+	MDP_LOGICAL_BLOCK_DISP_0 identifies the display pipe which fb0 uses,
+	same for others.
 
 */
 
@@ -357,6 +372,9 @@ enum {
 	MDP_BLOCK_DMA_S,
 	MDP_BLOCK_DMA_E,
 	MDP_BLOCK_OVERLAY_2,
+	MDP_LOGICAL_BLOCK_DISP_0 = 0x1000,
+	MDP_LOGICAL_BLOCK_DISP_1,
+	MDP_LOGICAL_BLOCK_DISP_2,
 	MDP_BLOCK_MAX,
 };
 
@@ -477,12 +495,19 @@ struct mdp_bl_scale_data {
 	uint32_t scale;
 };
 
+struct mdp_calib_config_data {
+	uint32_t ops;
+	uint32_t addr;
+	uint32_t data;
+};
+
 enum {
 	mdp_op_pcc_cfg,
 	mdp_op_csc_cfg,
 	mdp_op_lut_cfg,
 	mdp_op_qseed_cfg,
 	mdp_bl_scale_cfg,
+	mdp_op_calib_cfg,
 	mdp_op_max,
 };
 
@@ -494,6 +519,7 @@ struct msmfb_mdp_pp {
 		struct mdp_lut_cfg_data lut_cfg_data;
 		struct mdp_qseed_cfg_data qseed_cfg_data;
 		struct mdp_bl_scale_data bl_scale_data;
+		struct mdp_calib_config_data calib_cfg;
 	} data;
 };
 
