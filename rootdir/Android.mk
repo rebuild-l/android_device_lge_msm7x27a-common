@@ -50,3 +50,27 @@ LOCAL_MODULE_CLASS := ETC
 LOCAL_SRC_FILES    := etc/init.lge.target.sh
 LOCAL_MODULE_PATH  := $(TARGET_OUT_ETC)
 include $(BUILD_PREBUILT)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE       := hostapd.accept
+LOCAL_MODULE_TAGS  := optional eng
+LOCAL_MODULE_CLASS := ETC
+LOCAL_SRC_FILES    := hostapd/hostapd.accept
+LOCAL_MODULE_PATH  := $(TARGET_OUT_ETC)/hostapd
+include $(BUILD_PREBUILT)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE       := hostapd.deny
+LOCAL_MODULE_TAGS  := optional eng
+LOCAL_MODULE_CLASS := ETC
+LOCAL_SRC_FILES    := hostapd/hostapd.deny
+LOCAL_MODULE_PATH  := $(TARGET_OUT_ETC)/hostapd
+include $(BUILD_PREBUILT)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE       := hostapd_default.conf
+LOCAL_MODULE_TAGS  := optional eng
+LOCAL_MODULE_CLASS := ETC
+LOCAL_SRC_FILES    := hostapd/hostapd_default.conf
+LOCAL_MODULE_PATH  := $(TARGET_OUT_ETC)/hostapd
+include $(BUILD_PREBUILT)
