@@ -34,8 +34,7 @@ PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.touchscreen.multitouch.jazzhand.xml:system/etc/permissions/android.hardware.touchscreen.multitouch.jazzhand.xml
 
 PRODUCT_PACKAGES += \
-    lgapversion \
-    hwmac
+    lgapversion
 
 PRODUCT_PACKAGES += \
     init.lge-shared.rc \

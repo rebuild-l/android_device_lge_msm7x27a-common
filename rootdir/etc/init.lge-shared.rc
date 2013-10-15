@@ -332,19 +332,6 @@ service rmt_storage /system/bin/rmt_storage /dev/block/mmcblk0p10 /dev/block/mmc
     user root
     disabled
 
-service hciattach /system/bin/logwrapper /system/bin/sh /system/etc/init.lproj.bt.sh
-    class late_start
-    user bluetooth
-    group qcom_oncrpc bluetooth net_bt_admin net_bt_stack system
-    disabled
-    oneshot
-
-on property:bluetooth.hciattach=true
-    start hciattach
-
-on property:bluetooth.hciattach=false
-    setprop bluetooth.status off
-
 ## LGE_CHANGE_S, U0-SENSOR [seven.kim@lge.com] 2011-09-96
 # compass/accelerometer daemon for U0
 service sensord /system/bin/sensord
