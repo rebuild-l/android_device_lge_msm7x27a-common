@@ -50,7 +50,7 @@ BOARD_USE_SKIA_LCDTEXT := true
 BOARD_EGL_CFG := device/lge/msm7x27a-common/egl.cfg
 
 # Media 
-TARGET_QCOM_MEDIA_VARIANT := legacy
+TARGET_QCOM_MEDIA_VARIANT := caf
 
 # Add QC Video Enhancements flag
 TARGET_ENABLE_QC_AV_ENHANCEMENTS := true
