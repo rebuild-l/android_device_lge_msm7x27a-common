@@ -175,8 +175,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
    media.stagefright.enable-http=true \
    media.stagefright.enable-fma2dp=true \
    media.stagefright.enable-aac=true \
-   media.stagefright.enable-qcp=true \
-   debug.camcorder.disablemeta=1
+   media.stagefright.enable-qcp=true
 
 # Enable Torch
 PRODUCT_PACKAGES += Torch
