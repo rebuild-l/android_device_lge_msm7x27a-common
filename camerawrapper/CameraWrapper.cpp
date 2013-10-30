@@ -50,7 +50,7 @@ static struct hw_module_methods_t camera_module_methods = {
 
 camera_module_t HAL_MODULE_INFO_SYM = {
     .common = {
-         .tag: HARDWARE_MODULE_TAG,
+         .tag = HARDWARE_MODULE_TAG,
          .version_major = 1,
          .version_minor = 0,
          .id = CAMERA_HARDWARE_MODULE_ID,
@@ -62,6 +62,7 @@ camera_module_t HAL_MODULE_INFO_SYM = {
     },
     get_number_of_cameras: camera_get_number_of_cameras,
     get_camera_info: camera_get_camera_info,
+    set_callbacks: NULL,
 };
 
 typedef struct wrapper_camera_device {
@@ -216,7 +217,11 @@ int camera_store_meta_data_in_buffers(struct camera_device * device, int enable)
 {
     ALOGV("%s", __FUNCTION__);
     ALOGV("%s->%08X->%08X", __FUNCTION__, (uintptr_t)device, (uintptr_t)(((wrapper_camera_device_t*)device)->vendor));
-    return -1;
+    
+      if (!device)
+        return -EINVAL;
+
+    return VENDOR_CALL(device, store_meta_data_in_buffers, enable);
 }
 
 int camera_start_recording(struct camera_device * device)
@@ -240,6 +245,10 @@ void camera_stop_recording(struct camera_device * device)
 
 
     VENDOR_CALL(device, stop_recording);
+
+    /* Restart preview after stop recording to flush buffers and not crash */
+    VENDOR_CALL(device, stop_preview);
+    VENDOR_CALL(device, start_preview);
 }
 
 int camera_recording_enabled(struct camera_device * device)
@@ -293,16 +302,10 @@ int camera_take_picture(struct camera_device * device)
     ALOGV("%s", __FUNCTION__);
     ALOGV("%s->%08X->%08X", __FUNCTION__, (uintptr_t)device, (uintptr_t)(((wrapper_camera_device_t*)device)->vendor));
 
-    if(!device)
+    if (!device)
         return -EINVAL;
 
-    // We safely avoid returning the exact result of VENDOR_CALL here. If ZSL
-    // really bumps fast, take_picture will be called while a picture is already being
-    // taken, leading to "picture already running" error, crashing Gallery app. Afaik,
-    // there is no issue doing 0 (error appears in logcat anyway if needed).
-    VENDOR_CALL(device, take_picture);
-
-    return 0;
+    return VENDOR_CALL(device, take_picture);
 }
 
 int camera_cancel_picture(struct camera_device * device)
