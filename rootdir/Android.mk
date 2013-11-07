@@ -74,3 +74,19 @@ LOCAL_MODULE_CLASS := ETC
 LOCAL_SRC_FILES    := etc/hostapd/hostapd_default.conf
 LOCAL_MODULE_PATH  := $(TARGET_OUT_ETC)/hostapd
 include $(BUILD_PREBUILT)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE       := wpa_supplicant_overlay.conf
+LOCAL_MODULE_TAGS  := optional eng
+LOCAL_MODULE_CLASS := ETC
+LOCAL_SRC_FILES    := etc/wifi/wpa_supplicant_overlay.conf
+LOCAL_MODULE_PATH  := $(TARGET_OUT_ETC)/wifi
+include $(BUILD_PREBUILT)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE       := p2p_supplicant_overlay.conf
+LOCAL_MODULE_TAGS  := optional eng
+LOCAL_MODULE_CLASS := ETC
+LOCAL_SRC_FILES    := etc/wifi/p2p_supplicant_overlay.conf
+LOCAL_MODULE_PATH  := $(TARGET_OUT_ETC)/wifi
+include $(BUILD_PREBUILT)
