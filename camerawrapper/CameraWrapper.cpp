@@ -22,8 +22,8 @@
 */
 
 
-#define LOG_NDEBUG 0
-#define LOG_PARAMETERS
+//#define LOG_NDEBUG 0
+//#define LOG_PARAMETERS
 
 #define LOG_TAG "LGECameraWrapper"
 #include <cutils/log.h>
@@ -92,10 +92,15 @@ static int check_vendor_module()
     return rv;
 }
 
+const static char * iso_values[] = {"auto,ISO_HJR,ISO100,ISO200,ISO400,ISO800","auto"};
+
 static char * camera_fixup_getparams(int id, const char * settings)
 {
     android::CameraParameters params;
     params.unflatten(android::String8(settings));
+
+    // fix params here
+    params.set(android::CameraParameters::KEY_SUPPORTED_ISO_MODES, iso_values[id]);
 
     android::String8 strParams = params.flatten();
     char *ret = strdup(strParams.string());
@@ -108,6 +113,20 @@ char * camera_fixup_setparams(int id, const char * settings)
 {
     android::CameraParameters params;
     params.unflatten(android::String8(settings));
+
+    if(params.get("iso")) {
+        const char* isoMode = params.get(android::CameraParameters::KEY_ISO_MODE);
+         if(strcmp(isoMode, "ISO_HJR") == 0)
+            params.set(android::CameraParameters::KEY_ISO_MODE, "HJR");
+        if(strcmp(isoMode, "ISO100") == 0)
+            params.set(android::CameraParameters::KEY_ISO_MODE, "100");
+        else if(strcmp(isoMode, "ISO200") == 0)
+            params.set(android::CameraParameters::KEY_ISO_MODE, "200");
+        else if(strcmp(isoMode, "ISO400") == 0)
+            params.set(android::CameraParameters::KEY_ISO_MODE, "400");
+        else if(strcmp(isoMode, "ISO800") == 0)
+            params.set(android::CameraParameters::KEY_ISO_MODE, "800");
+    }
 
     android::String8 strParams = params.flatten();
     char *ret = strdup(strParams.string());
