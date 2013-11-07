@@ -12,7 +12,8 @@ on init
     mkdir /mnt/shell/emulated 0700 shell shell
     mkdir /storage/emulated 0555 root root
     mkdir /storage/emulated/legacy 0555 root root
-    mkdir /storage/sdcard1 0775 system system
+    mkdir /mnt/media_rw/sdcard1 0755 media_rw media_rw
+    mkdir /storage/sdcard1 0755 root root
 
     export EXTERNAL_STORAGE /storage/emulated/legacy
     export SECONDARY_STORAGE /storage/sdcard1
@@ -50,6 +51,7 @@ on fs
     mkdir /persist 0771 system system
     mkdir /persist-lg  0771 system system
     mkdir /mpt 0771 system system
+    setprop ro.crypto.fuse_sdcard true
 
 
 # LGE_CHANGE_E [jyothishre.nk@lge.com] 20120215
@@ -309,6 +311,10 @@ service ril-daemon1 /system/bin/rild -c 1
     group radio cache inet misc audio sdcard_r sdcard_rw qcom_oncrpc diag qcom_diag log
 
 service sdcard /system/bin/sdcard -u 1023 -g 1023 -l /data/media /mnt/shell/emulated
+    class late_start
+    disabled
+
+service fuse_sdcard1 /system/bin/sdcard -u 1023 -g 1023 -w 1023 -d /mnt/media_rw/sdcard1 /storage/sdcard1
     class late_start
     disabled
 
