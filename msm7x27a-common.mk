@@ -146,8 +146,8 @@ PRODUCT_PROPERTY_OVERRIDES += \
     keyguard.no_require_sim=1 
 
 PRODUCT_PROPERTY_OVERRIDES += \
-    ro.qualcomm.bt.hci_transport=uart \
-    ro.bt.bdaddr_path=/data/misc/bluedroid/bdaddr
+    persist.sys.strictmode.visual=0 \
+    persist.sys.strictmode.disable=1
 
 # Common properties
 PRODUCT_PROPERTY_OVERRIDES += \
