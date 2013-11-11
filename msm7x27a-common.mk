@@ -54,7 +54,8 @@ PRODUCT_PACKAGES += \
     liboverlay \
     gralloc.msm7x27a \
     copybit.msm7x27a \
-    libqdMetaData
+    libqdMetaData \
+    memtrack.msm7x27a
 
 # off-mode charging
 PRODUCT_PACKAGES += \
