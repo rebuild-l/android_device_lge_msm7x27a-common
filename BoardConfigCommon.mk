@@ -48,6 +48,7 @@ TARGET_QCOM_DISPLAY_VARIANT := caf
 USE_OPENGL_RENDERER := true
 TARGET_USES_ION := true
 BOARD_USE_SKIA_LCDTEXT := true
+BOARD_EGL_WORKAROUND_BUG_10194508 := true
 BOARD_EGL_CFG := device/lge/msm7x27a-common/egl.cfg
 
 # Media 
