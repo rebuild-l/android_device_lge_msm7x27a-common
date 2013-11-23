@@ -135,18 +135,14 @@ PRODUCT_PROPERTY_OVERRIDES += \
 
 PRODUCT_PROPERTY_OVERRIDES += \
 	ro.telephony.ril_class=LGEQualcommUiccRIL \
-	ro.telephony.ril.v3=qcomdsds
-
-PRODUCT_PROPERTY_OVERRIDES += \
+	ro.telephony.ril.v3=qcomdsds \
 	ro.telephony.default_network=0 \
-	telephony.lteOnGsmDevice=0
-
-PRODUCT_PROPERTY_OVERRIDES += \
-    rild.libpath=/system/lib/libril-qc-1.so \
-    rild.libargs=-d/dev/smd0 \
-    ril.subscription.types=NV,RUIM \
-    DEVICE_PROVISIONED=1 \
-    keyguard.no_require_sim=1 
+	telephony.lteOnGsmDevice=0 \
+        rild.libpath=/system/lib/libril-qc-1.so \
+        rild.libargs=-d/dev/smd0 \
+        ril.subscription.types=NV,RUIM \
+        DEVICE_PROVISIONED=1 \
+        keyguard.no_require_sim=1 
 
 PRODUCT_PROPERTY_OVERRIDES += \
     persist.sys.strictmode.visual=0 \
@@ -181,6 +177,9 @@ PRODUCT_PROPERTY_OVERRIDES += \
    media.stagefright.enable-fma2dp=true \
    media.stagefright.enable-aac=true \
    media.stagefright.enable-qcp=true
+
+PRODUCT_PROPERTY_OVERRIDES += \
+    persist.webview.provider=classic
 
 # Enable Torch
 PRODUCT_PACKAGES += Torch
