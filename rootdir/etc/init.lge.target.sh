@@ -31,7 +31,7 @@ device=`getprop ro.product.device`
 case $device in
      e610 | e612 | e615 | m4)
         setprop ro.sf.lcd_density 160
-        setprop lpa.decode true
+        setprop lpa.decode false
     ;;
 esac
 
