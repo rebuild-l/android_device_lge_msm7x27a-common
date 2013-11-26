@@ -39,7 +39,7 @@ case $device in
      p700 | p705 | p708 | p710 | p714 | u0 | vee7)
         setprop ro.sf.hwrotation 180
         setprop ro.sf.lcd_density 240
-        setprop lpa.decode true
+        setprop lpa.decode false
     ;;
 esac
 
