@@ -52,7 +52,6 @@ PRODUCT_COPY_FILES += \
 # display HALS
 PRODUCT_PACKAGES += \
     libgenlock \
-    liboverlay \
     gralloc.msm7x27a \
     copybit.msm7x27a \
     libqdMetaData \
