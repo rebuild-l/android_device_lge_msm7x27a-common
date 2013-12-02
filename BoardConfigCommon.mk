@@ -49,6 +49,7 @@ TARGET_USES_ION := true
 BOARD_USE_SKIA_LCDTEXT := true
 BOARD_EGL_WORKAROUND_BUG_10194508 := true
 BOARD_USE_MHEAP_SCREENSHOT := true
+QCOM_BSP_WITH_GENLOCK := true
 BOARD_EGL_CFG := device/lge/msm7x27a-common/egl.cfg
 
 # Media 
