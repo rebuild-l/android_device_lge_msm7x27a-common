@@ -111,8 +111,10 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     libaudioutils \
     audio.a2dp.default \
-    audio.usb.default
-
+    audio.usb.default \
+    audio.primary.msm7x27a \
+    audio_policy.msm7x27a
+    
 # SoftAP files 
 PRODUCT_PACKAGES += \
     hostapd.accept \
