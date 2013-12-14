@@ -17,6 +17,9 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/media_profiles.xml:system/etc/media_profiles.xml \
     $(LOCAL_PATH)/configs/audio_policy.conf::system/etc/audio_policy.conf
 
+PRODUCT_COPY_FILES_OVERRIDES += \
+    $(LOCAL_PATH)/configs/Generic.kl:system/usr/keylayout/Generic.kl
+
 $(call inherit-product, build/target/product/full.mk)
 
 # Permission files
