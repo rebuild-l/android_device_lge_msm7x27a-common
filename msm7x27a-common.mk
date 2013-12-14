@@ -17,6 +17,9 @@ PRODUCT_COPY_FILES += \
 PRODUCT_COPY_FILES_OVERRIDES += \
     $(LOCAL_PATH)/configs/Generic.kl:system/usr/keylayout/Generic.kl
 
+PRODUCT_COPY_FILES_OVERRIDES += \
+    $(LOCAL_PATH)/configs/7x27a_kp:system/usr/keylayout/7x27a_kp.kl
+
 $(call inherit-product, build/target/product/full.mk)
 
 # Permission files
