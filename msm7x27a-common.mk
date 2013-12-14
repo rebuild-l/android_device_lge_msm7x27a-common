@@ -158,7 +158,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
     hwui.render_dirty_regions=false \
     wifi.interface=wlan0 \
     ro.adb.secure=0 \
-    persist.sys.usb.config=mtp,adb \
+    persist.sys.usb.config=mtp,adro.zram.default=18b \
     persist.service.adb.enable=1 \
     hwui.render_dirty_regions=true \
     ro.max.fling_velocity=4000 \
@@ -167,7 +167,8 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ro.bq.gpu_to_cpu_unsupported=1 \
     dalvik.vm.dexopt-data-only=1 \
     ro.fuse_sdcard=true \
-    debug.gralloc.map_fb_memory=true
+    debug.gralloc.map_fb_memory=true \
+    ro.zram.default=18
 
 PRODUCT_PROPERTY_OVERRIDES += \
    media.stagefright.enable-player=true \
