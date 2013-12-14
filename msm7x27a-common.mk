@@ -161,7 +161,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
     hwui.render_dirty_regions=false \
     wifi.interface=wlan0 \
     ro.adb.secure=0 \
-    persist.sys.usb.config=mtp,adro.zram.default=18b \
+    persist.sys.usb.config=mtp,adb \
     persist.service.adb.enable=1 \
     hwui.render_dirty_regions=true \
     ro.max.fling_velocity=4000 \
