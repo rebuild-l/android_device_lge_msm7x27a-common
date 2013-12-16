@@ -7,6 +7,7 @@ PRODUCT_COPY_FILES += \
 
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/7k_handset.kl:system/usr/keylayout/7k_handset.kl \
+    $(LOCAL_PATH)/configs/7x27a_kp.kl:system/usr/keylayout/7x27a_kp.kl \
     $(LOCAL_PATH)/configs/AudioFilter.csv:system/etc/AudioFilter.csv
 
 PRODUCT_COPY_FILES += \
@@ -17,8 +18,6 @@ PRODUCT_COPY_FILES += \
 PRODUCT_COPY_FILES_OVERRIDES += \
     $(LOCAL_PATH)/configs/Generic.kl:system/usr/keylayout/Generic.kl
 
-PRODUCT_COPY_FILES_OVERRIDES += \
-    $(LOCAL_PATH)/configs/7x27a_kp:system/usr/keylayout/7x27a_kp.kl
 
 $(call inherit-product, build/target/product/full.mk)
 
