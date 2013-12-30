@@ -22,6 +22,39 @@ PRODUCT_COPY_FILES_OVERRIDES += \
 
 $(call inherit-product, build/target/product/full.mk)
 
+# SELinux
+BOARD_SEPOLICY_DIRS += \
+        device/lge/msm7x27a-common/sepolicy
+
+BOARD_SEPOLICY_UNION += \
+	file_contexts \
+	property_contexts \
+	te_macros \
+	bluetooth_loader.te \
+	bridge.te \
+	camera.te \
+	conn_init.te \
+	device.te \
+	dhcp.te \
+	domain.te \
+	drmserver.te \
+	file.te \
+	init.te \
+	kickstart.te \
+	mediaserver.te \
+	mpdecision.te \
+	netmgrd.te \
+	qmux.te \
+	rild.te \
+	rmt.te \
+	sensors.te \
+	surfaceflinger.te \
+	system.te \
+	tee.te \
+	thermald.te \
+	ueventd.te \
+	wpa_supplicant.te
+
 # Permission files
 PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/handheld_core_hardware.xml:system/etc/permissions/handheld_core_hardware.xml \
