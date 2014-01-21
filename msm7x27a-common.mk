@@ -169,8 +169,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ro.bq.gpu_to_cpu_unsupported=1 \
     dalvik.vm.dexopt-data-only=1 \
     ro.fuse_sdcard=true \
-    debug.gralloc.map_fb_memory=true \
-    ro.zram.default=18
+    debug.gralloc.map_fb_memory=true
 
 PRODUCT_PROPERTY_OVERRIDES += \
    media.stagefright.enable-player=true \
