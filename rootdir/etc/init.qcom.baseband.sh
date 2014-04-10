@@ -4,9 +4,6 @@
 PATH=/sbin:/system/sbin:/system/bin:/system/xbin
 export PATH
 
-bbfile="/data/.baseband"
-if [ ! -f ${bbfile} ]
-then
-  echo `strings /dev/block/mmcblk0p12 | grep -e "-V10.-" -e "-V20.-" | head -1` > ${bbfile}
-fi
-setprop gsm.version.baseband `cat ${bbfile}`
+v10=`strings /dev/block/mmcblk0p12 | grep -e "-V10.-"| head -1`
+v20=`strings /dev/block/mmcblk0p12 | grep -e "-V20.-"| head -1`
+setprop gsm.version.baseband ${v10}${v20}
