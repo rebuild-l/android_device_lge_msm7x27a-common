@@ -51,6 +51,10 @@ PRODUCT_PACKAGES += \
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/wpa_supplicant.conf:system/etc/wifi/wpa_supplicant.conf
 
+# Wifi
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/prebuilt/wlan.ko:system/lib/modules/wlan.ko
+
 # display HALS
 PRODUCT_PACKAGES += \
     libgenlock \
@@ -111,6 +115,12 @@ PRODUCT_PACKAGES += \
 
 PRODUCT_PACKAGES += \
     libQWiFiSoftApCfg
+
+PRODUCT_PACKAGES += \
+    WCN1314_qcom_wlan_nv.bin \
+    WCN1314_qcom_fw.bin \
+    WCN1314_cfg.dat \
+    WCN1314_qcom_cfg.ini
 
 # Do not power down SIM card when modem is sent to Low Power Mode.
 PRODUCT_PROPERTY_OVERRIDES += \
