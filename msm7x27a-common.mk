@@ -185,6 +185,9 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ro.cwm.forbid_format="/persist-lg,/mpt" \
     ro.cwm.forbid_mount="/persist-lg,/mpt" \
 
+PRODUCT_PROPERTY_OVERRIDES += \
+    ro.vendor.extension_library=/system/lib/libqc-opt.so
+
 # Enable Torch
 PRODUCT_PACKAGES += Torch
 
