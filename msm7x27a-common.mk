@@ -47,10 +47,6 @@ PRODUCT_PACKAGES += \
     init.lge.target.sh \
     init.qcom.baseband.sh 
 
-# Wifi
-PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/configs/wpa_supplicant.conf:system/etc/wifi/wpa_supplicant.conf
-
 # display HALS
 PRODUCT_PACKAGES += \
     libgenlock \
@@ -181,8 +177,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
    media.stagefright.enable-qcp=true
 
 PRODUCT_PROPERTY_OVERRIDES += \
-    persist.webview.provider=classic \
-    ro.soundrecorder.default_wav2ch=true
+    persist.webview.provider=classic
 
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.cwm.forbid_format="/persist-lg,/mpt" \

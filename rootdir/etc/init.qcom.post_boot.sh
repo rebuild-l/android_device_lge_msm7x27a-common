@@ -30,7 +30,7 @@
 target=`getprop ro.board.platform`
 case "$target" in
     "msm7x27a")
-         echo "interactive" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+         #echo "interactive" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
          #echo 90 > /sys/devices/system/cpu/cpufreq/ondemand/up_threshold
     ;;
 esac
