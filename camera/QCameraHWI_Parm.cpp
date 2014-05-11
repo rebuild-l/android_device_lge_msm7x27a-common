@@ -208,9 +208,9 @@ static const str_map effects[] = {
     { QCameraParameters::EFFECT_WHITEBOARD, CAMERA_EFFECT_WHITEBOARD },
     { QCameraParameters::EFFECT_BLACKBOARD, CAMERA_EFFECT_BLACKBOARD },
     { QCameraParameters::EFFECT_AQUA,       CAMERA_EFFECT_AQUA },
-    { QCameraParameters::EFFECT_EMBOSS,     CAMERA_EFFECT_EMBOSS },
-    { QCameraParameters::EFFECT_SKETCH,     CAMERA_EFFECT_SKETCH },
-    { QCameraParameters::EFFECT_NEON,       CAMERA_EFFECT_NEON }
+    //{ QCameraParameters::EFFECT_EMBOSS,     CAMERA_EFFECT_EMBOSS },
+    //{ QCameraParameters::EFFECT_SKETCH,     CAMERA_EFFECT_SKETCH },
+    //{ QCameraParameters::EFFECT_NEON,       CAMERA_EFFECT_NEON }
 };
 
 static const str_map iso[] = {
