@@ -120,7 +120,7 @@ PRODUCT_PACKAGES += \
     WCN1314_qcom_cfg.ini
 
 PRODUCT_PACKAGES += \
-    lights.$(TARGET_DEVICE)
+    lights.msm7x27a
 
 # Do not power down SIM card when modem is sent to Low Power Mode.
 PRODUCT_PROPERTY_OVERRIDES += \
