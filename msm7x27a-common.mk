@@ -150,7 +150,7 @@ endif
 PRODUCT_PROPERTY_OVERRIDES += \
     debug.fb.rgb565=0 \
     debug.sf.hw=1 \
-    debug.composition.type=mdp \
+    debug.composition.type=dyn \
     ro.opengles.version=131072 \
     com.qc.hardware=true \
     hwui.render_dirty_regions=false \
