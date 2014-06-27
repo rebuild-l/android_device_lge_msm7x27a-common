@@ -58,7 +58,8 @@ PRODUCT_PACKAGES += \
     gralloc.msm7x27a \
     copybit.msm7x27a \
     libqdMetaData \
-    memtrack.msm7x27a
+    memtrack.msm7x27a \
+    hwcomposer.msm7x27a
 
 # off-mode charging
 PRODUCT_PACKAGES += \
@@ -180,9 +181,6 @@ PRODUCT_PROPERTY_OVERRIDES += \
    media.stagefright.enable-fma2dp=true \
    media.stagefright.enable-aac=true \
    media.stagefright.enable-qcp=true
-
-PRODUCT_PROPERTY_OVERRIDES += \
-    persist.webview.provider=classic
 
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.vendor.extension_library=/system/lib/libqc-opt.so
