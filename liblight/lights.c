@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2008 The Android Open Source Project
+ * Copyright (C) 2008 The Android Open Source Project.
+ * Copyright (C) 2012-2014, The Linux Foundation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +17,6 @@
 
 
 // #define LOG_NDEBUG 0
-#define LOG_TAG "lights"
 
 #include <cutils/log.h>
 
@@ -42,18 +42,12 @@ static int g_attention = 0;
 
 char const*const RED_LED_FILE
         = "/sys/class/leds/red/brightness";
-char const*const RED_LED_BLINK_FILE
-        = "/sys/class/leds/red/blink";
 
 char const*const GREEN_LED_FILE
         = "/sys/class/leds/green/brightness";
-char const*const GREEN_LED_BLINK_FILE
-        = "/sys/class/leds/green/blink";
 
 char const*const BLUE_LED_FILE
         = "/sys/class/leds/blue/brightness";
-char const*const BLUE_LED_BLINK_FILE
-        = "/sys/class/leds/blue/blink";
 
 char const*const LCD_FILE
         = "/sys/class/leds/lcd-backlight/brightness";
@@ -61,8 +55,14 @@ char const*const LCD_FILE
 char const*const BUTTON_FILE
         = "/sys/class/leds/button-backlight/brightness";
 
-char const*const BATTERY_STATUS
-        = "/sys/class/power_supply/battery/status";
+char const*const RED_BLINK_FILE
+        = "/sys/class/leds/red/blink";
+
+char const*const GREEN_BLINK_FILE
+        = "/sys/class/leds/green/blink";
+
+char const*const BLUE_BLINK_FILE
+        = "/sys/class/leds/blue/blink";
 
 /**
  * device methods
@@ -83,8 +83,8 @@ write_int(char const* path, int value)
     fd = open(path, O_RDWR);
     if (fd >= 0) {
         char buffer[20];
-        int bytes = sprintf(buffer, "%d\n", value);
-        int amt = write(fd, buffer, bytes);
+        int bytes = snprintf(buffer, sizeof(buffer), "%d\n", value);
+        ssize_t amt = write(fd, buffer, (size_t)bytes);
         close(fd);
         return amt == -1 ? -errno : 0;
     } else {
@@ -93,50 +93,6 @@ write_int(char const* path, int value)
             already_warned = 1;
         }
         return -errno;
-    }
-}
-
-/*
- * Read the content from file and return as a string.
- * @path: the path of the file
- * @buf: the buffer used to store the content.
- * User should allocate memory for it. The size must large than 12.
- * @return: the bytes read from the file. -1 if failed.
- */
-static int read_string(char const* path, char* buf)
-{
-    int fd;
-    static int already_warned = 0;
-
-    fd = open(path, O_RDONLY);
-    if(fd >= 0) {
-        int size = read(fd, buf, 12);
-        close(fd);
-        buf[size - 1] = '\0';
-        return size;
-    } else {
-        if(0 == already_warned) {
-            ALOGE("write_int failed to open %s\n", path);
-            already_warned = 1;
-        }
-        return -1;
-    }
-}
-
-/*
- * determine whether the battery is on charging.
- * @return: none-zero if the battery is charging.
- */
-static int is_charging(void)
-{
-    char buf[12];
-    int ret;
-
-    ret = read_string(BATTERY_STATUS, buf);
-    if(ret <= 0) {
-        return 0;
-    } else {
-        return !strcmp(buf, "Charging") || !strcmp(buf, "Full");
     }
 }
 
@@ -170,9 +126,12 @@ static int
 set_speaker_light_locked(struct light_device_t* dev,
         struct light_state_t const* state)
 {
-    int blink, red, green, blue;
+    int len;
+    int alpha, red, green, blue;
+    int blink;
     int onMS, offMS;
     unsigned int colorRGB;
+
     switch (state->flashMode) {
         case LIGHT_FLASH_TIMED:
             onMS = state->flashOnMS;
@@ -198,30 +157,13 @@ set_speaker_light_locked(struct light_device_t* dev,
     }
 
     if (blink) {
-        write_int(RED_LED_FILE, 0);
-        write_int(GREEN_LED_FILE, 0);
-        write_int(BLUE_LED_FILE, 0);
-
-        if(red) {
-            write_int(RED_LED_BLINK_FILE, 1);
-        } else {
-            write_int(RED_LED_BLINK_FILE, 0);
-        }
-        if(green) {
-            write_int(GREEN_LED_BLINK_FILE, 1);
-        } else {
-            write_int(GREEN_LED_BLINK_FILE, 0);
-        }
-        if(blue) {
-            write_int(BLUE_LED_BLINK_FILE, 1);
-        } else {
-            write_int(BLUE_LED_BLINK_FILE, 0);
-        }
+        if (red)
+            write_int(RED_BLINK_FILE, blink);
+        if (green)
+            write_int(GREEN_BLINK_FILE, blink);
+        if (blue)
+            write_int(BLUE_BLINK_FILE, blink);
     } else {
-        write_int(RED_LED_BLINK_FILE, 0);
-        write_int(GREEN_LED_BLINK_FILE, 0);
-        write_int(BLUE_LED_BLINK_FILE, 0);
-
         write_int(RED_LED_FILE, red);
         write_int(GREEN_LED_FILE, green);
         write_int(BLUE_LED_FILE, blue);
@@ -233,24 +175,11 @@ set_speaker_light_locked(struct light_device_t* dev,
 static void
 handle_speaker_battery_locked(struct light_device_t* dev)
 {
-    /* priority: low battery > notification > charging */
-    if((!is_charging() && is_lit(&g_battery))
-            || (is_charging() && !is_lit(&g_notification))) {
+    if (is_lit(&g_battery)) {
         set_speaker_light_locked(dev, &g_battery);
     } else {
         set_speaker_light_locked(dev, &g_notification);
     }
-}
-
-static int
-set_light_battery(struct light_device_t* dev,
-        struct light_state_t const* state)
-{
-    pthread_mutex_lock(&g_lock);
-    g_battery = *state;
-    handle_speaker_battery_locked(dev);
-    pthread_mutex_unlock(&g_lock);
-    return 0;
 }
 
 static int
@@ -316,8 +245,6 @@ static int open_lights(const struct hw_module_t* module, char const* name,
 
     if (0 == strcmp(LIGHT_ID_BACKLIGHT, name))
         set_light = set_light_backlight;
-    else if (0 == strcmp(LIGHT_ID_BATTERY, name))
-        set_light = set_light_battery;
     else if (0 == strcmp(LIGHT_ID_NOTIFICATIONS, name))
         set_light = set_light_notifications;
     else if (0 == strcmp(LIGHT_ID_BUTTONS, name))
@@ -330,6 +257,10 @@ static int open_lights(const struct hw_module_t* module, char const* name,
     pthread_once(&g_init, init_globals);
 
     struct light_device_t *dev = malloc(sizeof(struct light_device_t));
+
+    if(!dev)
+        return -ENOMEM;
+
     memset(dev, 0, sizeof(*dev));
 
     dev->common.tag = HARDWARE_DEVICE_TAG;
@@ -351,8 +282,8 @@ static struct hw_module_methods_t lights_module_methods = {
  */
 struct hw_module_t HAL_MODULE_INFO_SYM = {
     .tag = HARDWARE_MODULE_TAG,
-    .module_api_version = 1,
-    .hal_api_version = HARDWARE_HAL_API_VERSION,
+    .version_major = 1,
+    .version_minor = 0,
     .id = LIGHTS_HARDWARE_MODULE_ID,
     .name = "lights Module",
     .author = "Google, Inc.",

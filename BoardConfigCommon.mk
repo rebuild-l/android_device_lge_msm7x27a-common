@@ -1,3 +1,28 @@
+# Copyright (C) 2014 The CyanogenMod Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+#
+# This file sets variables that control the way modules are built
+# thorughout the system. It should not be used to conditionally
+# disable makefiles (the proper mechanism to control what gets
+# included in a build is to use PRODUCT_PACKAGES in a product
+# definition file).
+#
+
+# WARNING: This line must come *before* including the proprietary
+# variant, so that it gets overwritten by the parent (which goes
+# against the traditional rules of inheritance).
 USE_CAMERA_STUB := true
 
 TARGET_NO_BOOTLOADER := true
@@ -28,8 +53,8 @@ TARGET_USERIMAGES_USE_EXT4 := true
 
 # cflags
 COMMON_GLOBAL_CFLAGS += -DMR0_CAMERA_BLOB
-COMMON_GLOBAL_CFLAGS += -DQCOM_HARDWARE
 COMMON_GLOBAL_CFLAGS += -DLPA_DEFAULT_BUFFER_SIZE=480
+COMMON_GLOBAL_CFLAGS += -DUSE_MDP3
 TARGET_GLOBAL_CFLAGS += -mfpu=neon -mfloat-abi=softfp
 TARGET_GLOBAL_CPPFLAGS += -mfpu=neon -mfloat-abi=softfp
 
@@ -39,9 +64,7 @@ BOARD_ADRENO_DECIDE_TEXTURE_TARGET := true
 TARGET_QCOM_DISPLAY_VARIANT := caf
 USE_OPENGL_RENDERER := true
 TARGET_USES_ION := true
-BOARD_USE_SKIA_LCDTEXT := true
 TARGET_USES_QCOM_BSP := true
-COMMON_GLOBAL_CFLAGS += -DQCOM_BSP
 BOARD_EGL_CFG := device/lge/msm7x27a-common/egl.cfg
 
 # Media 
@@ -66,15 +89,19 @@ BOARD_VENDOR_QCOM_GPS_LOC_API_AMSS_VERSION := 50000
 TARGET_BOOTANIMATION_PRELOAD := true
 TARGET_BOOTANIMATION_TEXTURE_CACHE := true
 
-BOARD_USE_LEGACY_SENSORS_FUSION := false
-
 USE_DEVICE_SPECIFIC_CAMERA := true
-
-BOARD_HAL_STATIC_LIBRARIES := libhealthd.msm7x27a
 
 TARGET_NO_INITLOGO := true
 
 TARGET_PROVIDES_LIBLIGHT := true
+
+BOARD_SEPOLICY_DIRS := \
+       device/lge/msm7x27a-common/sepolicy
+
+BOARD_SEPOLICY_UNION := \
+       device.te \
+       app.te \
+       file_contexts
 
 BOARD_HAS_QCOM_WLAN              := true
 BOARD_HAS_QCOM_WLAN_SDK          := true
@@ -90,5 +117,5 @@ WIFI_EXT_MODULE_NAME             := "librasdioif"
 WIFI_DRIVER_MODULE_NAME          := "wlan"
 WIFI_DRIVER_FW_PATH_STA          := "sta"
 WIFI_DRIVER_FW_PATH_AP           := "ap"
+WIFI_DRIVER_FW_PATH_P2P          := "p2p"
 WIFI_DRIVER_FW_PATH_PARAM        := "/data/misc/wifi/fwpath"
-BOARD_LEGACY_NL80211_STA_EVENTS  := true

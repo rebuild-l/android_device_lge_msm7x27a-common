@@ -1,7 +1,20 @@
-$(call inherit-product, $(SRC_TARGET_DIR)/product/languages_full.mk)
+# Copyright (C) 2014 The CyanogenMod Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
-$(call inherit-product, device/common/gps/gps_us_supl.mk)
+$(call inherit-product, $(SRC_TARGET_DIR)/product/full_base_telephony.mk)
 $(call inherit-product, vendor/lge/msm7x27a-common/msm7x27a-common-vendor.mk)
+$(call inherit-product, device/common/gps/gps_us_supl.mk)
 
 DEVICE_PACKAGE_OVERLAYS += device/lge/msm7x27a-common/overlay
 
@@ -21,9 +34,6 @@ PRODUCT_COPY_FILES += \
 PRODUCT_COPY_FILES_OVERRIDES += \
     $(LOCAL_PATH)/configs/Generic.kl:system/usr/keylayout/Generic.kl
 
-
-$(call inherit-product, build/target/product/full.mk)
-
 # Permission files
 PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/handheld_core_hardware.xml:system/etc/permissions/handheld_core_hardware.xml \
@@ -39,10 +49,7 @@ PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.usb.host.xml:system/etc/permissions/android.hardware.usb.host.xml \
     frameworks/native/data/etc/android.hardware.touchscreen.multitouch.jazzhand.xml:system/etc/permissions/android.hardware.touchscreen.multitouch.jazzhand.xml
 
-# Wifi
-PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/prebuilt/wlan.ko:system/lib/modules/wlan.ko
-
+# Qcom scripts
 PRODUCT_PACKAGES += \
     init.lge-shared.rc \
     init.target.rc \
@@ -77,9 +84,11 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     gps.msm7x27a
 
+# Power Hal
 PRODUCT_PACKAGES += \
     power.msm7x27a
 
+# Camera Hal
 PRODUCT_PACKAGES += \
     camera.msm7x27a
 
@@ -107,63 +116,51 @@ PRODUCT_PACKAGES += \
     hostapd.deny \
     hostapd_default.conf 
 
+# Wifi
 PRODUCT_PACKAGES += \
     wpa_supplicant_overlay.conf \
-    p2p_supplicant_overlay.conf
-
-PRODUCT_PACKAGES += \
-    libQWiFiSoftApCfg
-
-PRODUCT_PACKAGES += \
+    p2p_supplicant_overlay.conf \
     WCN1314_qcom_wlan_nv.bin \
     WCN1314_qcom_fw.bin \
     WCN1314_cfg.dat \
     WCN1314_qcom_cfg.ini
 
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/prebuilt/wlan.ko:system/lib/modules/wlan.ko
+
+# light hal
 PRODUCT_PACKAGES += \
     lights.msm7x27a
 
-# Do not power down SIM card when modem is sent to Low Power Mode.
+# Radio properties
 PRODUCT_PROPERTY_OVERRIDES += \
-	persist.radio.apm_sim_not_pwdn=1
+    ro.telephony.ril_class=LGEQualcommUiccRIL \
+    ro.telephony.ril.v3=qcomdsds \
+    ro.telephony.default_network=0 \
+    ro.telephony.call_ring.multiple=0 \
+    telephony.lteOnGsmDevice=0 \
+    rild.libpath=/system/lib/libril-qc-1.so \
+    rild.libargs=-d/dev/smd0 \
+    ril.subscription.types=NV,RUIM \
+    DEVICE_PROVISIONED=1 \
+    persist.radio.apm_sim_not_pwdn=1
 
-# Ril sends only one RIL_UNSOL_CALL_RING, so set call_ring.multiple to false
+# Qcom properties
 PRODUCT_PROPERTY_OVERRIDES += \
-	ro.telephony.call_ring.multiple=0
-
-PRODUCT_PROPERTY_OVERRIDES += \
-	ro.telephony.ril_class=LGEQualcommUiccRIL \
-	ro.telephony.ril.v3=qcomdsds \
-	ro.telephony.default_network=0 \
-	telephony.lteOnGsmDevice=0 \
-        rild.libpath=/system/lib/libril-qc-1.so \
-        rild.libargs=-d/dev/smd0 \
-        ril.subscription.types=NV,RUIM \
-        DEVICE_PROVISIONED=1 \
-        keyguard.no_require_sim=1 
-
-ifeq ($(TARGET_BUILD_VARIANT),eng)
-PRODUCT_PROPERTY_OVERRIDES += \
-    persist.sys.strictmode.visual=0 \
-    persist.sys.strictmode.disable=1
-endif
-
-# Common properties
-PRODUCT_PROPERTY_OVERRIDES += \
-    debug.fb.rgb565=0 \
     debug.sf.hw=1 \
+    debug.egl.hw=1 \
     debug.composition.type=dyn \
-    ro.opengles.version=131072 \
+    persist.hwc.mdpcomp.enable=false \
+    debug.mdpcomp.logs=0 \
     com.qc.hardware=true \
-    hwui.render_dirty_regions=false \
-    wifi.interface=wlan0 \
-    persist.service.adb.enable=1 \
-    hwui.render_dirty_regions=true \
-    ro.max.fling_velocity=4000 \
-    debug.gr.numframebuffers=3 \
-    dalvik.vm.dexopt-data-only=1 \
+    debug.gralloc.map_fb_memory=1
+
+PRODUCT_PROPERTY_OVERRIDES += \
+    ro.opengles.version=131072
+
+PRODUCT_PROPERTY_OVERRIDES += \
     ro.fuse_sdcard=true \
-    debug.gralloc.map_fb_memory=true
+    persist.service.adb.enable=1
 
 ifeq ($(TARGET_BUILD_VARIANT),userdebug)
 ADDITIONAL_DEFAULT_PROPERTIES += \

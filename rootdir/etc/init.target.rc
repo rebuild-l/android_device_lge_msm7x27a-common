@@ -39,7 +39,6 @@ service targetprop-set /system/bin/sh /system/etc/init.lge.target.sh
 
 on boot
    start qcamerasvr
-   start gpu_dcvsd
 
 on fs
 
@@ -69,8 +68,3 @@ on property:sys.radio.shutdown=true
    exec /system/bin/sh /system/etc/init.qcom.efs.sync.sh
    user root
    group root
-
-service gpu_dcvsd /system/bin/gpu_dcvsd
-    class late_start
-    user root
-    oneshot
