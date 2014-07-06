@@ -154,16 +154,43 @@ void mm_camera_stream_frame_refill_q(mm_camera_frame_queue_t *q, mm_camera_frame
 
 void mm_camera_stream_deinit_frame(mm_camera_stream_frame_t *frame)
 {
+    int i;
+
+    for(i=0; i < MM_CAMERA_MAX_NUM_FRAMES; i++) {
+        if(frame->frame[i].mobicat_info){
+            free (frame->frame[i].mobicat_info);
+            frame->frame[i].mobicat_info = NULL;
+        }
+    }
     pthread_mutex_destroy(&frame->mutex);
     mm_camera_stream_deinit_q(&frame->readyq);
     memset(frame, 0, sizeof(mm_camera_stream_frame_t));
 }
 
-void mm_camera_stream_init_frame(mm_camera_stream_frame_t *frame)
+int mm_camera_stream_init_frame(mm_camera_stream_frame_t *frame)
 {
+    int rc = 0;
+    int i;
     memset(frame, 0, sizeof(mm_camera_stream_frame_t));
-    pthread_mutex_init(&frame->mutex, NULL);
-    mm_camera_stream_init_q(&frame->readyq);
+    for(i= 0; i < MM_CAMERA_MAX_NUM_FRAMES; i++) {
+        frame->frame[i].mobicat_info = malloc (sizeof(cam_exif_tags_t ));
+        if(frame->frame[i].mobicat_info == NULL) {
+            rc = -1;
+            break;
+        }
+    }
+    if(rc == 0) {
+        pthread_mutex_init(&frame->mutex, NULL);
+        mm_camera_stream_init_q(&frame->readyq);
+    } else {
+        for(i=0; i < MM_CAMERA_MAX_NUM_FRAMES; i++) {
+            if(frame->frame[i].mobicat_info){
+                free (frame->frame[i].mobicat_info);
+                frame->frame[i].mobicat_info = NULL;
+            }
+        }
+    }
+    return rc;
 }
 
 void mm_camera_stream_release(mm_camera_stream_t *stream)
@@ -365,7 +392,8 @@ static int mm_camera_util_set_op_mode(int fd, int opmode)
 int mm_camera_stream_qbuf(mm_camera_obj_t * my_obj, mm_camera_stream_t *stream,
   int idx)
 {
-  int32_t i, rc = MM_CAMERA_OK;
+  uint32_t i;
+  int32_t  rc = MM_CAMERA_OK;
   int *ret;
   struct v4l2_buffer buffer;
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2012, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2012-2013 The Linux Foundation. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -495,6 +495,15 @@ typedef enum {
     MM_CAMERA_PARM_FPS_RANGE,
     MM_CAMERA_PARM_FACIAL_FEATURE_INFO,
     MM_CAMERA_PARM_SNAPSHOT_RAW,
+    MM_CAMERA_PARM_MOBICAT,
+    MM_CAMERA_PARM_VISION_MODE,
+    MM_CAMERA_PARM_VISION_AE,
+    MM_CAMERA_PARM_FLIP_HINT,
+    MM_CAMERA_PARM_STREAM_ERROR,
+    MM_CAMERA_PARM_FD_INFO,
+    MM_CAMERA_PARAM_EXPOSURE_TIME,
+    MM_CAMERA_PARM_EXTERNAL_DIS_ENABLE,
+    MM_CAMERA_PARAM_ISO_AUTO_VALUE,
     MM_CAMERA_PARM_MAX
 } mm_camera_parm_type_t;
 
@@ -649,6 +658,16 @@ typedef enum {
   CAMERA_CHECK_AF_RETRY,
   CAMERA_SET_LG_CAF_LOCK,
   CAMERA_SET_INFORM_STARTPREVIEW,
+  CAMERA_ENABLE_MOBICAT,
+  CAMERA_GET_PARM_MOBICAT,
+  CAMERA_SET_VISION_MODE,
+  CAMERA_SET_VISION_AE,
+  CAMERA_SET_FLIP_HINT,
+  CAMERA_SET_PARM_STREAM_ERROR,
+  CAMERA_SET_PARM_FD_INFO,
+  CAMERA_GET_PARAM_EXPOSURE_TIME,
+  CAMERA_SET_EXTERNAL_DIS_ENABLE,
+  CAMERA_GET_PARAM_ISO_AUTO_VALUE,
   CAMERA_CTRL_PARM_MAX
 } cam_ctrl_type;
 
@@ -834,6 +853,7 @@ typedef struct {
   uint32_t total_hal_frames;
   char values[MAX_EXP_BRACKETING_LENGTH];  /* user defined values */
 } exp_bracketing_t;
+
 typedef struct {
   roi_t      mtr_area[MAX_ROI];
   uint32_t   num_area;
@@ -982,10 +1002,10 @@ typedef struct {
 } fd_roi_header_type;
 
 typedef struct fd_rect_t {
-  uint16_t x;
-  uint16_t y;
-  uint16_t dx;
-  uint16_t dy;
+   uint16_t x;
+   uint16_t y;
+   uint16_t dx;
+   uint16_t dy;
 }fd_rect;
 
 typedef struct fd_info{
@@ -997,7 +1017,6 @@ typedef struct fd_info{
   int display_width;
   int display_height;
 }fd_info_t;
-
 
 typedef struct {
   struct fd_rect_t face_boundary;
@@ -1138,6 +1157,12 @@ typedef enum camera_rotation_type {
   ROT_CLOCKWISE_270      = 7,
 } camera_rotation_type;
 
+typedef enum {
+  FLIP_NONE        = 0,
+  FLIP_H           = 2,
+  FLIP_V           = 4
+} camera_flip_type;
+
 typedef struct video_rotation_param_ctrl_t {
   camera_rotation_type rotation; /* 0 degree = rot disable. */
 } video_rotation_param_ctrl_t;
@@ -1161,6 +1186,13 @@ typedef struct {
   cam_frame_type_t frame_type;
   cam_3d_frame_format_t format;
 }camera_3d_frame_t;
+
+typedef enum {
+  WAVELET_DENOISE_YCBCR_PLANE,
+  WAVELET_DENOISE_CBCR_ONLY,
+  WAVELET_DENOISE_STREAMLINE_YCBCR,
+  WAVELET_DENOISE_STREAMLINED_CBCR,
+} wd_process_plane_t;
 
 typedef enum {
     CAMERA_BESTSHOT_OFF = 0,
@@ -1288,6 +1320,40 @@ typedef enum {
   CAMERA_WB_OFF,
   CAMERA_WB_MAX_PLUS_1
 } config3a_wb_t;
+
+typedef struct {
+  /*input parameter*/
+  int enable;
+  /*output parameter*/
+  uint32_t mobicat_size;
+}mm_cam_mobicat_info_t;
+
+#define MAX_MOBICAT_SIZE 8092
+
+/* This macro defines whether to gather the mobicat info from
+   mm-camera-interface or HAL. Since its a huge data, we dont
+   want to get the data per frame basis unless OEM wants it.
+   Adding the support for both by controlling this macro*/
+#define HAL_GET_MBC_INFO
+
+/*
+  WARNING: Since this data structure is huge,
+  never use it as local variable, otherwise, it so easy to cause
+  stack overflow
+  Always use malloc to allocate heap memory for it
+*/
+typedef struct {
+  int max_len;   //telling the client max sizen of tags, here 10k.
+  int data_len;  //client return real size including null "\0".
+  char tags[MAX_MOBICAT_SIZE];
+} cam_exif_tags_t;
+
+#define MAX_CAM_FRAME_TYPE 3 /* in match with enum in cam_frame_type_t */
+
+typedef struct {
+  int8_t camera_id;
+  int flip[MAX_CAM_FRAME_TYPE];
+} flip_hint_t;
 
 /******************************************************************************
  * Function: exif_set_tag

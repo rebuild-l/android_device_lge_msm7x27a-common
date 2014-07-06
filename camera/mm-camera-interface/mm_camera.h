@@ -98,6 +98,7 @@ struct mm_camera_frame_t{
     int match;
     int valid_entry;
     mm_camera_frame_t *next;
+    cam_exif_tags_t *mobicat_info;
 };
 
 typedef struct {
@@ -261,6 +262,7 @@ typedef struct {
     int full_liveshot;
     int snap_burst_num_by_user;
     uint32_t channel_interface_mask;
+    int mobicat_enable;
 } mm_camera_obj_t;
 
 #define MM_CAMERA_DEV_NAME_LEN 32

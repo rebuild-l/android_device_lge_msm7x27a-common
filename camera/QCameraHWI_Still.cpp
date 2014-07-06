@@ -59,7 +59,8 @@ typedef enum {
 static const int PICTURE_FORMAT_JPEG = 1;
 static const int PICTURE_FORMAT_RAW = 2;
 static const int POSTVIEW_SMALL_HEIGHT = 144;
-
+static const String8 mobstr("Parm1=10\nParm2=20\narray=1,2,\
+  3,4,5,6,7,8,9,10,\nParm4=40\n");
 // ---------------------------------------------------------------------------
 /* static functions*/
 // ---------------------------------------------------------------------------
@@ -261,7 +262,6 @@ receiveCompleteJpegPicture(jpeg_event_t event)
         ALOGV("<DEBUG>: Calling buf done for snapshot buffer");
         cam_evt_buf_done(mCameraId, mCurrentFrameEncoded);
     }
-    mHalCamCtrl->dumpFrameToFile(mHalCamCtrl->mJpegMemory.camera_memory[0]->data, mJpegOffset, (char *)"debug", (char *)"jpg", 0);
 
 end:
     msg_type = CAMERA_MSG_COMPRESSED_IMAGE;
@@ -335,6 +335,10 @@ end:
                          mHalCamCtrl->mCallbackCookie);
         }
     }
+    // If this is non-fullsize liveshot, we need to de-allocate snapshot buffers
+    // here because stop() won't do it (mActive is FALSE)
+    if (isLiveSnapshot() && !isFullSizeLiveshot())
+           deinitSnapshotBuffers();
     //reset jpeg_offset
 
     mJpegOffset = 0;
@@ -1215,6 +1219,21 @@ status_t QCameraStream_Snapshot::initZSLSnapshot(void)
         ALOGE("%s: Failure allocating memory for Snapshot buffers", __func__);
         goto end;
     }
+    {
+        /*register main and thumbnail buffers at back-end for frameproc*/
+        for (int i = 0; i < mHalCamCtrl->getZSLQueueDepth() + 3; i++) {
+            if (NO_ERROR != mHalCamCtrl->sendMappingBuf(MSM_V4L2_EXT_CAPTURE_MODE_MAIN, i,
+                mSnapshotStreamBuf.frame[i].fd, mHalCamCtrl->mSnapshotMemory.size, mCameraId,
+                CAM_SOCK_MSG_TYPE_FD_MAPPING)) {
+                ALOGE("%s: sending mapping data Msg Failed", __func__);
+            }
+            if (NO_ERROR != mHalCamCtrl->sendMappingBuf(MSM_V4L2_EXT_CAPTURE_MODE_THUMBNAIL, i,
+                mPostviewStreamBuf.frame[i].fd, mHalCamCtrl->mThumbnailMemory.size, mCameraId,
+                CAM_SOCK_MSG_TYPE_FD_MAPPING)) {
+                ALOGE("%s: sending mapping data Msg Failed", __func__);
+            }
+        }
+    }
 
 end:
     /* Based on what state we are in, we'll need to handle error -
@@ -1477,8 +1496,21 @@ encodeData(mm_camera_ch_data_buf_t* recvd_frame,
     uint32_t thumbnail_fd;
     uint8_t hw_encode = true;
     int mNuberOfVFEOutputs = 0;
-
     omx_jpeg_encode_params encode_params;
+#ifdef HAL_GET_MBC_INFO
+    if (mHalCamCtrl->mMobiCatEnabled) {
+        if ((recvd_frame->p_mobicat_info != NULL) &&
+            cam_config_get_parm(mCameraId, MM_CAMERA_PARM_MOBICAT,
+              recvd_frame->p_mobicat_info)
+               == MM_CAMERA_OK) {
+            ALOGE("%s:%d] Mobicat enabled %p %d", __func__, __LINE__,
+              recvd_frame->p_mobicat_info->tags,
+              recvd_frame->p_mobicat_info->data_len);
+        } else {
+            ALOGE("MM_CAMERA_PARM_MOBICAT get failed");
+        }
+    }
+#endif
 
     /* If it's the only frame, we directly pass to encoder.
        If not, we'll queue it and check during next jpeg .
@@ -1518,6 +1550,15 @@ encodeData(mm_camera_ch_data_buf_t* recvd_frame,
 
       encode_params.exif_data = mHalCamCtrl->getExifData();
       encode_params.exif_numEntries = mHalCamCtrl->getExifTableNumEntries();
+
+      if (mHalCamCtrl->mMobiCatEnabled && recvd_frame->p_mobicat_info) {
+          encode_params.hasmobicat = 1;
+          encode_params.mobicat_data = (uint8_t *)recvd_frame->p_mobicat_info->tags;
+          encode_params.mobicat_data_length = recvd_frame->p_mobicat_info->data_len;
+      } else {
+          encode_params.hasmobicat = 0;
+      }
+
       if (!omxJpegEncodeNext(&encode_params)){
           ALOGE("%s: Failure! JPEG encoder returned error.", __func__);
           ret = FAILED_TRANSACTION;
@@ -1672,6 +1713,14 @@ encodeData(mm_camera_ch_data_buf_t* recvd_frame,
         mHalCamCtrl->setExifTags();
         encode_params.exif_data = mHalCamCtrl->getExifData();
         encode_params.exif_numEntries = mHalCamCtrl->getExifTableNumEntries();
+
+        if (mHalCamCtrl->mMobiCatEnabled && recvd_frame->p_mobicat_info) {
+            encode_params.hasmobicat = 1;
+            encode_params.mobicat_data = (uint8_t *)recvd_frame->p_mobicat_info->tags;
+            encode_params.mobicat_data_length = recvd_frame->p_mobicat_info->data_len;
+        } else {
+            encode_params.hasmobicat = 0;
+        }
 
         if (isLiveSnapshot() && !isFullSizeLiveshot())
             encode_params.a_cbcroffset = mainframe->cbcr_off;
@@ -2272,6 +2321,8 @@ status_t QCameraStream_Snapshot::start(void) {
         if (mHdrInfo.hdr_on) {
             ret = initJPEGSnapshot(mHdrInfo.num_frame);
         } else {
+            /* do not support non zsl burst now. */
+            mNumOfSnapshot = 1;
             ret = initJPEGSnapshot(mNumOfSnapshot);
         }
     }

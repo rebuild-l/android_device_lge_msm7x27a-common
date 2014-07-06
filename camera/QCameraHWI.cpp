@@ -173,6 +173,7 @@ QCameraHardwareInterface(int cameraId, int mode)
                     mPreviewSizeCount(13),
                     mVideoSizeCount(0),
                     mAutoFocusRunning(false),
+                    mNeedToUnlockCaf(false),
                     mHasAutoFocusSupport(false),
                     mInitialized(false),
                     mIs3DModeOn(0),
@@ -217,10 +218,12 @@ QCameraHardwareInterface(int cameraId, int mode)
                     mPowerModule(0),
                     mChannelInterfaceMask(STREAM_IMAGE),
                     mSnapJpegCbRunning(false),
-                    mSnapCbDisabled(false)
+                    mSnapCbDisabled(false),
+                    mSnapshotFlip(FLIP_NONE)
 {
     ALOGI("QCameraHardwareInterface: E");
     int32_t result = MM_CAMERA_E_GENERAL;
+    mMobiCatEnabled = false;
     char value[PROPERTY_VALUE_MAX];
 
     pthread_mutex_init(&mAsyncCmdMutex, NULL);
@@ -243,7 +246,6 @@ QCameraHardwareInterface(int cameraId, int mode)
 
     property_get("persist.camera.hal.dis", value, "0");
     mDisEnabled = atoi(value);
-
     /* Open camera stack! */
     result=cam_ops_open(mCameraId, MM_CAMERA_OP_MODE_NOTUSED);
     if (result == MM_CAMERA_OK) {
@@ -520,6 +522,7 @@ status_t QCameraHardwareInterface::sendCommand(int32_t command, int32_t arg1,
     Mutex::Autolock l(&mLock);
 
     switch (command) {
+#ifdef QCOM_BSP
         case CAMERA_CMD_HISTOGRAM_ON:
             ALOGD("histogram set to on");
             rc = setHistogram(1);
@@ -533,6 +536,7 @@ status_t QCameraHardwareInterface::sendCommand(int32_t command, int32_t arg1,
             mSendData = true;
             rc = NO_ERROR;
             break;
+#endif
         case CAMERA_CMD_START_FACE_DETECTION:
            if(supportsFaceDetection() == false){
                 ALOGD("Face detection support is not available");
@@ -896,6 +900,15 @@ void QCameraHardwareInterface::processCtrlEvent(mm_camera_ctrl_event_t *event, a
             mLock.unlock();
             wdnHdrStartEvent();
             break;
+        case MM_CAMERA_CTRL_EVT_SNAPSHOT_CONFIG_DONE:
+            ALOGV("%s: MM_CAMERA_CTRL_EVT_SNAPSHOT_CONFIG_DONE", __func__);
+            app_cb->notifyCb  = mNotifyCb;
+            app_cb->argm_notify.msg_type = CAMERA_MSG_SHUTTER;
+            app_cb->argm_notify.ext1 = 0;
+            app_cb->argm_notify.ext2 = TRUE;
+            app_cb->argm_notify.cookie =  mCallbackCookie;
+            mShutterSoundPlayed = TRUE;
+            break;
       default:
             break;
     }
@@ -913,7 +926,7 @@ void  QCameraHardwareInterface::processStatsEvent(
     }
 
     switch (event->event_id) {
-
+#ifdef QCOM_BSP
         case MM_CAMERA_STATS_EVT_HISTO:
         {
             ALOGI("HAL process Histo: mMsgEnabled=0x%x, mStatsOn=%d, mSendData=%d, mDataCb=%p ",
@@ -943,7 +956,8 @@ void  QCameraHardwareInterface::processStatsEvent(
             break;
 
         }
-        default:
+#endif
+        default: // Drop stats event.
         break;
     }
   ALOGV("receiveCameraStats X");
@@ -1389,13 +1403,14 @@ status_t QCameraHardwareInterface::startRecording()
             mCameraState = CAMERA_STATE_ERROR;
         mPreviewState = QCAMERA_HAL_RECORDING_STARTED;
 
+#ifdef QCOM_BSP
         if (mPowerModule) {
             if (mPowerModule->powerHint) {
                 mPowerModule->powerHint(mPowerModule,
                     POWER_HINT_VIDEO_ENCODE, (void *)"state=1");
             }
         }
-
+#endif
         break;
     case QCAMERA_HAL_RECORDING_STARTED:
         ALOGD("%s: ", __func__);
@@ -1453,13 +1468,14 @@ void QCameraHardwareInterface::stopRecordingInternal()
     mCameraState = CAMERA_STATE_PREVIEW;  //TODO : Apurva : Hacked for 2nd time Recording
     mPreviewState = QCAMERA_HAL_PREVIEW_STARTED;
 
+#ifdef QCOM_BSP
     if (mPowerModule) {
         if (mPowerModule->powerHint) {
             mPowerModule->powerHint(mPowerModule,
                     POWER_HINT_VIDEO_ENCODE, (void *)"state=0");
         }
     }
-
+#endif
     ALOGI("stopRecordingInternal: X");
     return;
 }
@@ -1520,9 +1536,11 @@ status_t QCameraHardwareInterface::autoFocusEvent(cam_ctrl_status_t *status, app
 
     /* If autofocus call has been made during CAF, CAF will be locked.
      * We specifically need to call cancelAutoFocus to unlock CAF.
-     * In that sense, AF is still running.*/
+     */
     isp3a_af_mode_t afMode = getAutoFocusMode(mParameters);
-    mAutoFocusRunning = (afMode == AF_MODE_CAF) ? true : false;
+    if (afMode == AF_MODE_CAF)
+       mNeedToUnlockCaf = true;
+    mAutoFocusRunning = false;
     mAutofocusLock.unlock();
 
 /************************************************************
@@ -2034,9 +2052,10 @@ status_t QCameraHardwareInterface::cancelAutoFocus()
 *************************************************************/
 
     mAutofocusLock.lock();
-    if(mAutoFocusRunning) {
+    if(mAutoFocusRunning || mNeedToUnlockCaf) {
 
       mAutoFocusRunning = false;
+      mNeedToUnlockCaf = false;
       mAutofocusLock.unlock();
 
     }else/*(!mAutoFocusRunning)*/{
@@ -2244,22 +2263,6 @@ void QCameraHardwareInterface::zoomEvent(cam_ctrl_status_t *status, app_notify_c
         break;
     }
     ALOGI("zoomEvent: X");
-}
-
-void QCameraHardwareInterface::dumpFrameToFile(const void * data, uint32_t size, char* name, char* ext, int index)
-{
-    char buf[32];
-    int file_fd;
-    static int i = 0 ;
-    if ( data != NULL) {
-        char * str;
-        snprintf(buf, sizeof(buf), "/data/%s_%d.%s", name, index + i, ext);
-        ALOGI("marvin, %s size =%d", buf, size);
-        file_fd = open(buf, O_RDWR | O_CREAT, 0777);
-        write(file_fd, data, size);
-        close(file_fd);
-        i++;
-    }
 }
 
 void QCameraHardwareInterface::dumpFrameToFile(struct msm_frame* newFrame,
@@ -2584,7 +2587,9 @@ int QCameraHardwareInterface::initHeapMem( QCameraHalHeap_t *heap,
     int rc = 0;
     int i;
     int path;
+    int ion_fd;
     struct msm_frame *frame;
+    struct ion_flush_data cache_inv_data;
     ALOGI("Init Heap =%p. stream_buf =%p, pmem_type =%d, num_of_buf=%d. buf_len=%d, cbcr_off=%d",
          heap, StreamBuf, pmem_type, num_of_buf, buf_len, cbcr_off);
     if(num_of_buf > MM_CAMERA_MAX_NUM_FRAMES || heap == NULL ||
@@ -2663,6 +2668,21 @@ int QCameraHardwareInterface::initHeapMem( QCameraHalHeap_t *heap,
             rc = -1;
             break;
         }
+
+        memset(&cache_inv_data, 0, sizeof(struct ion_flush_data));
+        cache_inv_data.vaddr = (void*) heap->camera_memory[i]->data;
+        cache_inv_data.fd = heap->ion_info_fd[i].fd;
+        cache_inv_data.handle = heap->ion_info_fd[i].handle;
+        cache_inv_data.length = heap->alloc[i].len;
+        ion_fd = heap->main_ion_fd[i];
+        if(ion_fd > 0) {
+            if(cache_ops(ion_fd, &cache_inv_data, ION_IOC_CLEAN_INV_CACHES) < 0)
+                ALOGE("%s: Cache Invalidate failed\n", __func__);
+            else {
+                ALOGV("%s: Successful cache invalidate\n", __func__);
+            }
+        }
+
         if (StreamBuf != NULL) {
             frame = &(StreamBuf->frame[i]);
             memset(frame, 0, sizeof(struct msm_frame));

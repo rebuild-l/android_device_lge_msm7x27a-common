@@ -116,7 +116,9 @@ static OMX_INDEXTYPE thumbnailQualityType;
 static void *out_buffer;
 static int * out_buffer_size;
 static OMX_INDEXTYPE buffer_offset;
+static OMX_INDEXTYPE mobicat_data;
 static omx_jpeg_buffer_offset bufferoffset;
+static omx_jpeg_mobicat mobicat_d;
 
 static jpeg_color_format_t get_jpeg_format_from_cam_format(
   cam_format_t cam_format )
@@ -205,7 +207,7 @@ OMX_ERRORTYPE eventHandler( OMX_IN OMX_HANDLETYPE hComponent,
                             OMX_IN OMX_PTR pEventData)
 {
     ALOGI("%s", __func__);
-    ALOGI("%s:got event %d ndata1 %u ndata2 %u", __func__,
+    ALOGI("%s:got event %d ndata1 %lu ndata2 %lu", __func__,
       eEvent, nData1, nData2);
     pthread_mutex_lock(&lock);
     expectedEvent = eEvent;
@@ -236,7 +238,7 @@ void waitForEvent(int event, int value1, int value2 ){
 }
 
 int8_t mm_jpeg_encoder_get_buffer_offset(uint32_t width, uint32_t height,
-    uint32_t* p_y_offset, uint32_t* p_cbcr_offset, uint32_t* p_buf_size,
+    int32_t* p_y_offset, int32_t* p_cbcr_offset, int32_t* p_buf_size,
     uint8_t *num_planes, uint32_t planes[])
 {
     ALOGI("%s:", __func__);
@@ -271,7 +273,7 @@ int8_t mm_jpeg_encoder_get_buffer_offset(uint32_t width, uint32_t height,
 
 int8_t omxJpegOpen()
 {
-    ALOGI("%s", __func__);
+    OMX_DBG_INFO("%s:%d", __func__,__LINE__);
     pthread_mutex_lock(&jpege_mutex);
     libmmstillomx = dlopen("libmmstillomx.so", RTLD_NOW);
     if (!libmmstillomx) {
@@ -344,7 +346,7 @@ int8_t omxJpegEncodeNext(omx_jpeg_encode_params *encode_params)
     OMX_GetParameter(pHandle, OMX_IndexParamPortDefinition, inputPort);
     OMX_GetParameter(pHandle, OMX_IndexParamPortDefinition, outputPort);
 
-    ALOGI("%s:nFrameWidth=%d nFrameHeight=%d nBufferSize=%d w=%d h=%d",
+    ALOGI("%s:nFrameWidth=%lu nFrameHeight=%lu nBufferSize=%lu w=%d h=%d",
       __func__, inputPort->format.image.nFrameWidth,
       inputPort->format.image.nFrameHeight, inputPort->nBufferSize,
       bufferoffset.width, bufferoffset.height);
@@ -358,6 +360,15 @@ int8_t omxJpegEncodeNext(omx_jpeg_encode_params *encode_params)
     OMX_GetParameter(pHandle, OMX_IndexParamPortDefinition, inputPort1);
     ALOGI("%s: thumbnail widht %d height %d", __func__,
       thumbnail.width, thumbnail.height);
+
+    if(encode_params->hasmobicat) {
+        OMX_DBG_INFO("%s %d ", __func__,
+                __LINE__);
+        mobicat_d.mobicatData =(uint8_t *)encode_params->mobicat_data;
+        mobicat_d.mobicatDataLength =  encode_params->mobicat_data_length;
+        OMX_GetExtensionIndex(pHandle, "omx.qcom.jpeg.exttype.mobicat", &mobicat_data);
+        OMX_SetParameter(pHandle, mobicat_data, &mobicat_d);
+    }
 
     userpreferences.color_format =
         format_cam2jpeg(encode_params->dimension->main_img_format);
@@ -379,39 +390,6 @@ int8_t omxJpegEncodeNext(omx_jpeg_encode_params *encode_params)
     OMX_UseBuffer(pHandle, &pInBuffers, 0, &pmem_info, inputPort->nBufferSize,
     (void *) encode_params->snapshot_buf);
     OMX_GetExtensionIndex(pHandle, "omx.qcom.jpeg.exttype.exif", &exif);
-    /*temporarily set rotation in EXIF data. This is done to avoid
-      image corruption issues in ZSL mode since roation is known
-      before hand. The orientation is set in the exif tag and
-      decoder will decode it will the right orientation. need to add double
-      padding to fix the issue */
-    if (isZSLMode) {
-        /*Get the orientation tag values depending on rotation*/
-        switch (jpegRotation) {
-        case 0:
-            orientation = 1; /*Normal*/
-            break;
-        case 90:
-            orientation = 6; /*Rotated 90 CCW*/
-            break;
-        case 180:
-            orientation =  3; /*Rotated 180*/
-            break;
-        case 270:
-            orientation = 8; /*Rotated 90 CW*/
-            break;
-        default:
-            orientation = 1;
-            break;
-      }
-      tag.tag_id = EXIFTAGID_ORIENTATION;
-      tag.tag_entry.type = EXIFTAGTYPE_ORIENTATION;
-      tag.tag_entry.count = 1;
-      tag.tag_entry.copy = 1;
-      tag.tag_entry.data._short = orientation;
-      ALOGE("%s jpegRotation = %d , orientation value =%d\n", __func__,
-           jpegRotation, orientation);
-      OMX_SetParameter(pHandle, exif, &tag);
-    }
 
     /*Set omx parameter for all exif tags*/
     int i;
@@ -424,7 +402,7 @@ int8_t omxJpegEncodeNext(omx_jpeg_encode_params *encode_params)
     pmem_info1.fd = encode_params->thumbnail_fd;
     pmem_info1.offset = 0;
 
-    ALOGI("%s: input1 buff size %d", __func__, inputPort1->nBufferSize);
+    ALOGI("%s: input1 buff size %lu", __func__, inputPort1->nBufferSize);
     OMX_UseBuffer(pHandle, &pInBuffers1, 2, &pmem_info1,
       inputPort1->nBufferSize, (void *) encode_params->thumbnail_buf);
     OMX_UseBuffer(pHandle, &pOutBuffers, 1, NULL, inputPort->nBufferSize,
@@ -624,6 +602,16 @@ int8_t omxJpegEncode(omx_jpeg_encode_params *encode_params)
       userpreferences.color_format,userpreferences.thumbnail_color_format,
       userpreferences.preference);
     OMX_SetParameter(pHandle,user_preferences,&userpreferences);
+    OMX_DBG_INFO("%s Mobicat:::::%d ", __func__,
+                __LINE__);
+    if(encode_params->hasmobicat) {
+        OMX_DBG_INFO("%s %d ", __func__,
+                __LINE__);
+        mobicat_d.mobicatData = (uint8_t *)encode_params->mobicat_data;
+        mobicat_d.mobicatDataLength =  encode_params->mobicat_data_length;
+        OMX_GetExtensionIndex(pHandle, "omx.qcom.jpeg.exttype.mobicat", &mobicat_data);
+        OMX_SetParameter(pHandle, mobicat_data, &mobicat_d);
+    }
 
     ALOGI("%s Thumbnail present? : %d ", __func__,
                  encode_params->hasThumbnail);
@@ -700,7 +688,7 @@ int8_t omxJpegEncode(omx_jpeg_encode_params *encode_params)
     pmem_info1.fd = encode_params->thumbnail_fd;
     pmem_info1.offset = 0;
 
-    ALOGI("%s: input1 buff size %d", __func__, inputPort1->nBufferSize);
+    ALOGI("%s: input1 buff size %lu", __func__, inputPort1->nBufferSize);
     OMX_UseBuffer(pHandle, &pInBuffers1, 2, &pmem_info1,
       inputPort1->nBufferSize, (void *) encode_params->thumbnail_buf);
 
@@ -752,7 +740,7 @@ void omxJpegAbort()
     ALOGI("%s: encoding=%d", __func__, encoding);
     if (encoding) {
       encoding = 0;
-      OMX_SendCommand(pHandle, OMX_CommandFlush, NULL, NULL);
+      OMX_SendCommand(pHandle, OMX_CommandFlush,0 , NULL);
       ALOGI("%s:waitForEvent: OMX_CommandFlush", __func__);
       waitForEvent(OMX_EVENT_JPEG_ABORT, 0, 0);
       ALOGI("%s:waitForEvent: OMX_CommandFlush: DONE", __func__);

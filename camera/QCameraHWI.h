@@ -234,7 +234,6 @@ typedef struct{
 
     int         mAltitude_ref;
     long        mGPSTimestamp;
-
 } exif_values_t;
 
 namespace android {
@@ -579,6 +578,7 @@ private:
     status_t setJpegRotation(int isZSL);
     int getJpegRotation(void);
     int getISOSpeedValue();
+    int getAutoFlickerMode();
     status_t setAntibanding(const QCameraParameters& params);
     status_t setEffect(const QCameraParameters& params);
     status_t setExposureCompensation(const QCameraParameters &params);
@@ -588,6 +588,7 @@ private:
     status_t setGpsLocation(const QCameraParameters& params);
     status_t setRotation(const QCameraParameters& params);
     status_t setZoom(const QCameraParameters& params);
+    status_t setFaceZoom(const QCameraParameters& params);
     status_t setFocusMode(const QCameraParameters& params);
     status_t setBrightness(const QCameraParameters& params);
     status_t setSkinToneEnhancement(const QCameraParameters& params);
@@ -627,6 +628,7 @@ private:
     void takePicturePrepareHardware( );
     status_t setChannelInterfaceMask(const CameraParameters& params);
     status_t setNoDisplayMode(const QCameraParameters& params);
+    status_t setMobiCat(const QCameraParameters& params);
 
     isp3a_af_mode_t getAutoFocusMode(const QCameraParameters& params);
     bool isValidDimension(int w, int h);
@@ -660,6 +662,8 @@ private:
     void parseGPSCoordinate(const char *latlonString, rat_t* coord);
     bool getHdrInfoAndSetExp( int max_num_frm, int *num_frame, int *exp);
     void hdrEvent(cam_ctrl_status_t status, void *cookie);
+
+    status_t setStreamFlipHint(const QCameraParameters &params);
 
     int           mCameraId;
     camera_mode_t myMode;
@@ -735,6 +739,7 @@ private:
     unsigned int mVideoSizeCount;
 
     bool mAutoFocusRunning;
+    bool mNeedToUnlockCaf;
     bool mMultiTouch;
     bool mHasAutoFocusSupport;
     bool mInitialized;
@@ -756,6 +761,7 @@ private:
     int mSnapshotFormat;
     int mZslInterval;
     bool mRestartPreview;
+    bool mMobiCatEnabled;
 
 /*for histogram*/
     int            mStatsOn;
@@ -844,8 +850,9 @@ private:
      QCameraHalHeap_t     mJpegMemory;
      QCameraHalHeap_t     mRawMemory;
      camera_frame_metadata_t mMetadata;
-     camera_face_t           mFace[MAX_ROI];
+     camera_face_t        mFace[MAX_ROI];
      fd_info_t            mFace_info[MAX_ROI];
+     bool                 mFaceZoomEnabled;
      preview_format_info_t  mPreviewFormatInfo;
      friend void liveshot_callback(mm_camera_ch_data_buf_t *frame,void *user_data);
 
@@ -863,6 +870,7 @@ private:
      bool                   mSnapCbDisabled;
 
     power_module_t*   mPowerModule;
+    int mSnapshotFlip;
 };
 
 }; // namespace android

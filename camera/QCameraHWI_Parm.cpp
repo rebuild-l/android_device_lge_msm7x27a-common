@@ -1238,7 +1238,7 @@ void QCameraHardwareInterface::initDefaultParameters()
 
     //Set Denoise
     mParameters.set(QCameraParameters::KEY_QC_DENOISE,
-                    QCameraParameters::DENOISE_OFF);
+                    QCameraParameters::DENOISE_ON);
     mParameters.set(QCameraParameters::KEY_QC_SUPPORTED_DENOISE,
                         denoise_value);
     //Set Touch AF/AEC
@@ -1364,6 +1364,10 @@ void QCameraHardwareInterface::initDefaultParameters()
        mParameters.set(QCameraParameters::KEY_QC_SINGLE_ISP_OUTPUT_ENABLED, "false");
     }
 
+    mFaceZoomEnabled = FALSE;
+    mParameters.set("display_mode","portrait");
+    mParameters.set("face_position","(-1,-1)");
+
     if (setParameters(mParameters) != NO_ERROR) {
         ALOGE("Failed to set default parameters?!");
     }
@@ -1385,10 +1389,10 @@ int QCameraHardwareInterface::setParameters(const char *parms)
     String8 str = String8(parms);
     param.unflatten(str);
     status_t ret = setParameters(param);
-	if(ret == NO_ERROR)
-		return 0;
-	else
-		return -1;
+    if(ret == NO_ERROR)
+        return 0;
+    else
+        return -1;
 }
 
 /**
@@ -1477,6 +1481,7 @@ status_t QCameraHardwareInterface::setParameters(const QCameraParameters& params
     if ((rc = setZSLBurstLookBack(params))) final_rc = rc;
     if ((rc = setZSLBurstInterval(params))) final_rc = rc;
     if ((rc = setNoDisplayMode(params))) final_rc = rc;
+    if ((rc = setMobiCat(params)))       final_rc = rc;
 
     //Update Exiftag values.
     setExifTags();
@@ -1690,6 +1695,7 @@ status_t QCameraHardwareInterface::setZoom(const QCameraParameters& params)
     static const int ZOOM_STEP = 1;
     int32_t zoom_level = params.getInt("zoom");
     if(zoom_level >= 0 && zoom_level <= mMaxZoom-1) {
+        setFaceZoom(params);
         mParameters.set("zoom", zoom_level);
         int32_t zoom_value = ZOOM_STEP * zoom_level;
         bool ret = native_set_parms(MM_CAMERA_PARM_ZOOM,
@@ -2359,6 +2365,21 @@ status_t QCameraHardwareInterface::setWhiteBalance(const QCameraParameters& para
     ALOGE("Invalid whitebalance value: %s", (str == NULL) ? "NULL" : str);
     return BAD_VALUE;
 }
+
+int QCameraHardwareInterface::getAutoFlickerMode()
+{
+     /* Enable Advanced Auto Antibanding where we can set
+        any of the following option
+        ie. CAMERA_ANTIBANDING_AUTO = 3
+            CAMERA_ANTIBANDING_AUTO_50HZ = 4
+            CAMERA_ANTIBANDING_AUTO_60HZ = 5
+        Currently setting it to default    */
+    char prop[PROPERTY_VALUE_MAX];
+    memset(prop, 0, sizeof(prop));
+    property_get("persist.camera.set.afd", prop, "3");
+    return atoi(prop);
+}
+
 status_t QCameraHardwareInterface::setAntibanding(const QCameraParameters& params)
 {
     int result;
@@ -2378,6 +2399,9 @@ status_t QCameraHardwareInterface::setAntibanding(const QCameraParameters& param
             camera_antibanding_type temp = (camera_antibanding_type) value;
             ALOGI("Antibanding Value : %d",value);
             mParameters.set(QCameraParameters::KEY_ANTIBANDING, str);
+            if(value == CAMERA_ANTIBANDING_AUTO) {
+            value = getAutoFlickerMode();
+            }
             bool ret = native_set_parms(MM_CAMERA_PARM_ANTIBANDING,
                        sizeof(camera_antibanding_type), (void *)&value ,(int *)&result);
             if(result != MM_CAMERA_OK) {
@@ -2498,7 +2522,23 @@ status_t QCameraHardwareInterface::setWaveletDenoise(const QCameraParameters& pa
             denoise_param_t temp;
             memset(&temp, 0, sizeof(denoise_param_t));
             temp.denoise_enable = value;
-            temp.process_plates = atoi(prop);
+            switch(atoi(prop)) {
+                case 0:
+                    temp.process_plates = WAVELET_DENOISE_YCBCR_PLANE;
+                    break;
+                case 1:
+                    temp.process_plates = WAVELET_DENOISE_CBCR_ONLY;
+                    break;
+                case 2:
+                    temp.process_plates = WAVELET_DENOISE_STREAMLINE_YCBCR;
+                    break;
+                case 3:
+                    temp.process_plates = WAVELET_DENOISE_STREAMLINED_CBCR;
+                    break;
+                default:
+                    temp.process_plates = WAVELET_DENOISE_STREAMLINE_YCBCR;
+                    break;
+            }
             ALOGE("Denoise enable=%d, plates=%d", temp.denoise_enable, temp.process_plates);
             bool ret = native_set_parms(MM_CAMERA_PARM_WAVELET_DENOISE, sizeof(temp),
                     (void *)&temp);
@@ -3593,6 +3633,27 @@ status_t QCameraHardwareInterface::setFullLiveshot()
   return NO_ERROR;
 }
 
+status_t QCameraHardwareInterface::setMobiCat(const QCameraParameters& params)
+{
+    mm_cam_mobicat_info_t mbc_info;
+    char mbc_prop[PROPERTY_VALUE_MAX];
+    int propval;
+    memset(mbc_prop, 0, sizeof(mbc_prop));
+    property_get("persist.camera.mobicat", mbc_prop, "0");
+    propval = atoi(mbc_prop);
+
+    mbc_info.enable = (mParameters.getInt("mobicat") == 1) ? 1 : 0;
+    ALOGE("%s:%d] prop %d %d", __func__, __LINE__, mbc_info.enable, propval);
+    mbc_info.enable |= propval;
+
+    if (mbc_info.enable != mMobiCatEnabled) {
+        ALOGE("%s:%d] enable %d", __func__, __LINE__, mbc_info.enable);
+        native_set_parms(MM_CAMERA_PARM_MOBICAT, sizeof(mm_cam_mobicat_info_t),
+          (void *)&mbc_info);
+        mMobiCatEnabled = mbc_info.enable;
+    }
+    return NO_ERROR;
+}
 
 isp3a_af_mode_t QCameraHardwareInterface::getAutoFocusMode(
   const QCameraParameters& params)
@@ -4388,6 +4449,87 @@ status_t QCameraHardwareInterface::setChannelInterfaceMask(const CameraParameter
   mParameters.set("channel-stream-num", mChannelInterfaceMask);
 
   return NO_ERROR;
+}
+
+
+status_t QCameraHardwareInterface::setStreamFlipHint(const QCameraParameters& params) {
+  return NO_ERROR; //TBD
+}
+
+status_t QCameraHardwareInterface::setFaceZoom(const QCameraParameters& params)
+{
+    status_t rc = NO_ERROR;
+    int i;
+
+    const char *str  = params.get("face_position");
+    const char *prev_str = mParameters.get("face_position");
+
+    ALOGV("%s : str = %s, prev = %s",__func__,str,prev_str);
+    int str_cmp = strcmp(str,prev_str);
+    if (str_cmp == 0) {
+        ALOGE("%s: Face Zoom Enabled Already",__func__);
+        return NO_ERROR;
+    }
+
+    if (mFaceZoomEnabled) {
+        goto cancelzoom;
+    }
+    if (str != NULL) {
+        int value[2];
+        int x, y;
+        fd_rect temp;
+        mParameters.set("face_position",str);
+        parseNDimVector(str, value, 2);
+        ALOGD("Face Zoom: Centre values -(%d,%d)",value[0],value[1]);
+        if (value[0] == -1 || value[1] == -1) {
+            goto cancelzoom;
+        }
+        x = ((value[0] + 1000) * mDimension.display_width)/2000;
+        y = ((value[1] + 1000) * mDimension.display_height)/2000;
+        ALOGD("Face Zoom: Centre mapped to display = %d, %d",x,y);
+
+        for (i=0; i < MAX_ROI; i++) {
+            if ((x >= mFace_info[i].face_rect.x) && (x <= (mFace_info[i].face_rect.x + mFace_info[i].face_rect.dx))
+                && (y >= mFace_info[i].face_rect.y) && (y <= (mFace_info[i].face_rect.y + mFace_info[i].face_rect.dy)))
+            {
+                ALOGV("Face Zoom: Found Face with matching center");
+                const char *str_val  = params.get("display_mode");
+                if (str_val != NULL) {
+                    if(!strcmp(str_val, "landscape")){
+                        mFace_info[i].display_mode = 1;
+                    }else{
+                        mFace_info[i].display_mode = 0;
+                    }
+                }else{
+                    mFace_info[i].display_mode = 0;
+                }
+                mFace_info[i].zoom_enabled = true;
+                rc = native_set_parms(MM_CAMERA_PARM_FD_INFO, sizeof(fd_info_t),(void *)&mFace_info[i]);
+                if (rc == NO_ERROR) {
+                    mFaceZoomEnabled = true;
+                }else{
+                    return BAD_VALUE;
+                }
+                break;
+
+            }
+        }
+        if (i == MAX_ROI) {
+            ALOGE("%s: Could not find face for position set",__func__);
+        }
+        return NO_ERROR;
+    }
+
+cancelzoom:
+    ALOGV("Face Zoom: Cancel Face Zoom");
+    fd_info_t temp;
+    memset(&temp,0,sizeof(fd_info_t)) ;
+    temp.zoom_enabled = false;
+    mParameters.set("face_position","(-1,-1)");
+    native_set_parms(MM_CAMERA_PARM_FD_INFO, sizeof(fd_info_t),(void *)&temp);
+    mFaceZoomEnabled = false;
+    return NO_ERROR;
+
 }
 
 }; /*namespace android */
