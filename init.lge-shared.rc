@@ -1,4 +1,3 @@
-import init.target.rc
 import init.lge.usb.rc
 
 on early-init
@@ -53,10 +52,27 @@ on init
     chmod 0777          /sys/devices/platform/i2c-gpio.3/i2c-3/3-0030/brightness_uA
 
 on fs
-    mkdir /system
+
     mkdir /persist 0771 system system
     mkdir /persist-lg  0771 system system
     mkdir /mpt 0771 system system
+
+    wait /dev/block/platform/msm_sdcc.3/by-num/p15
+    exec /system/bin/e2fsck -fy /dev/block/platform/msm_sdcc.3/by-num/p15
+    mount ext4 /dev/block/platform/msm_sdcc.3/by-num/p15 /persist nosuid nodev barrier=1
+
+    wait /dev/block/platform/msm_sdcc.3/by-num/p16
+    exec /system/bin/e2fsck -fy /dev/block/platform/msm_sdcc.3/by-num/p16
+    mount ext4 /dev/block/platform/msm_sdcc.3/by-num/p16 /cache nosuid nodev barrier=1
+    
+    wait /dev/block/platform/msm_sdcc.3/by-num/p18
+    exec /system/bin/e2fsck -fy /dev/block/platform/msm_sdcc.3/by-num/p18
+    mount ext4 /dev/block/platform/msm_sdcc.3/by-num/p18 /persist-lg nosuid nodev barrier=1
+
+    wait /dev/block/platform/msm_sdcc.3/by-num/p23
+    exec /system/bin/e2fsck -fy /dev/block/platform/msm_sdcc.3/by-num/p23
+    mount ext4 /dev/block/platform/msm_sdcc.3/by-num/p23 /mpt nosuid nodev barrier=1
+
     setprop ro.crypto.fuse_sdcard true
 
 
@@ -180,7 +196,19 @@ on post-fs-data
 
     setprop vold.post_fs_data_done 1
 
+on early-boot
+   start targetprop-set
+
+service targetprop-set /system/bin/sh /system/etc/init.lge.target.sh
+    class late_start
+    user root
+    critical
+    disabled
+    oneshot
+
 on boot
+   start qcamerasvr
+
    # bluetooth
     chown bluetooth bluetooth /sys/module/bluetooth_power/parameters/power
     chown bluetooth bluetooth /sys/class/rfkill/rfkill0/type
@@ -307,6 +335,12 @@ on boot
     chmod 0664 /sys/class/leds/button-backlight/max_brightnes
     restorecon /sys/class/leds/button-backlight/max_brightnes
 
+#start camera server as daemon
+service qcamerasvr /system/bin/mm-qcamera-daemon
+        class late_start
+        user camera
+        group camera system inet audio
+
 service ril-daemon1 /system/bin/rild -c 1
     class main
     socket rild1 stream 660 root radio
@@ -320,8 +354,8 @@ service sdcard /system/bin/sdcard -u 1023 -g 1023 -l /data/media /mnt/shell/emul
     disabled
 
 service fuse_sdcard1 /system/bin/sdcard -u 1023 -g 1023 -d /mnt/media_rw/sdcard1 /storage/sdcard1
-    class late_start
-    disabled
+     class late_start
+     disabled
 
 service fuse_usbdisk /system/bin/sdcard -u 1023 -g 1023 -d /mnt/media_rw/usbdisk /storage/usbdisk
     class late_start
@@ -396,16 +430,6 @@ service wpa_supplicant /system/bin/wpa_supplicant \
 on property:init.svc.wpa_supplicant=stopped
     stop dhcpcd
 
-on property:bluetooth.isEnabled=true
-    start btwlancoex
-    write /sys/class/bluetooth/hci0/idle_timeout 7000
-
-on property:bluetooth.sap.status=running
-    start bt-sap
-
-on property:bluetooth.sap.status=stopped
-    stop bt-sap
-
 on property:wlan.driver.status=loading
    write /sys/devices/platform/msm_sdcc.2/polling 1
 on property:wlan.driver.status=failed
@@ -445,32 +469,6 @@ service iprenew_bt-pan /system/bin/dhcpcd -n
     disabled
     oneshot
 
-service dhcpcd_bnep0 /system/bin/dhcpcd -BKLG
-    disabled
-    oneshot
-
-service dhcpcd_bnep1 /system/bin/dhcpcd -BKLG
-    disabled
-    oneshot
-
-service dhcpcd_bnep2 /system/bin/dhcpcd -BKLG
-    disabled
-    oneshot
-
-service dhcpcd_bnep3 /system/bin/dhcpcd -BKLG
-    disabled
-    oneshot
-
-service dhcpcd_bnep4 /system/bin/dhcpcd -BKLG
-    disabled
-    oneshot
-
-
-service qmiproxy /system/bin/qmiproxy
-    class core
-    user radio
-    group radio qcom_diag
-
 service qmuxd /system/bin/qmuxd
     class core
     user radio
@@ -479,14 +477,23 @@ service qmuxd /system/bin/qmuxd
 service netmgrd /system/bin/netmgrd
     class core
 
-service qcom-post-boot /system/bin/sh /system/etc/init.qcom.post_boot.sh
-    class late_start
-    user root
-    disabled
-    oneshot
-
 on property:sys.boot_completed=1
-    start qcom-post-boot
+    chown system /sys/devices/platform/rs300000a7.65536/force_sync
+    chown system /sys/devices/platform/rs300000a7.65536/sync_sts
+    chown system /sys/devices/platform/rs300100a7.65536/force_sync
+    chown system /sys/devices/platform/rs300100a7.65536/sync_sts
+    write /sys/devices/platform/msm_sdcc.1/idle_timeout 10
+    write /sys/module/pm2/modes/cpu0/standalone_power_collapse/idle_enabled 1
+    write /sys/module/pm2/modes/cpu0/standalone_power_collapse/suspend_enabled 1
+    write /sys/module/pm2/modes/cpu0/power_collapse/suspend_enabled 1
+    write /sys/module/pm2/modes/cpu0/power_collapse/idle_enabled 1
+    chown system /sys/devices/system/cpu/cpufreq/ondemand/sampling_rate
+    chown system /sys/devices/system/cpu/cpufreq/ondemand/sampling_down_factor
+    chown system /sys/devices/system/cpu/cpufreq/ondemand/io_is_busy
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq 245760
+    write /sys/module/lowmemorykiller/parameters/adj 0,1,2,4,6,7
+    write /sys/module/lowmemorykiller/parameters/minfree 4075,5437,6799,8847,11520,15360
+    write /proc/sys/vm/min_free_kbytes 5120
     write /sys/block/mmcblk0/queue/scheduler sio
     write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor ondemand
     write /sys/devices/system/cpu/cpufreq/ondemand/up_threshold 90
@@ -508,60 +515,3 @@ service hostapd /system/bin/hostapd -dddd /data/hostapd/hostapd.conf
     oneshot
     disabled
 
-#LGE_CHANGE_S[jyothishre.nk@lge.com]20121005:Adding logger support
-service logcat-main /system/bin/logcat -v time -b main -f /data/logger/main.log -n 4 -r 4096
-   class late_start
-   disabled
-   oneshot
-
-on property:persist.service.main.enable=1
-   start logcat-main
-
-on property:persist.service.main.enable=0
-   stop logcat-main
-
-service logcat-system /system/bin/logcat -v time -b system -f /data/logger/system.log -n 4 -r 4096
-   class late_start
-   disabled
-   oneshot
-
-on property:persist.service.system.enable=1
-    start logcat-system
-
-on property:persist.service.system.enable=0
-    stop logcat-system
-
-
-service logcat-radio /system/bin/logcat -v time -b radio -f /data/logger/radio.log -n 4 -r 4096
-   class late_start
-   disabled
-   oneshot
-
-on property:persist.service.radio.enable=1
-    start logcat-radio
-
-on property:persist.service.radio.enable=0
-    stop logcat-radio
-
-service logcat-events /system/bin/logcat -v time -b events -f /data/logger/events.log -n 4 -r 4096
-   class late_start
-   disabled
-   oneshot
-
-on property:persist.service.events.enable=1
-    start logcat-events
-
-on property:persist.service.events.enable=0
-    stop logcat-events
-
-service log-kernel /system/bin/logcat_kmsg /data/logger/kernel.log 4096 4
-   class late_start
-   disabled
-   oneshot
-
-on property:persist.service.kernel.enable=1
-    start log-kernel
-
-on property:persist.service.kernel.enable=0
-    stop log-kernel
-#LGE_CHANGE_E[jyothishre.nk@lge.com]20121005:Adding logger support

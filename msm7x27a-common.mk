@@ -19,6 +19,10 @@ $(call inherit-product, device/common/gps/gps_us_supl.mk)
 DEVICE_PACKAGE_OVERLAYS += device/lge/msm7x27a-common/overlay
 
 PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/init.lge-shared.rc:root/init.lge-shared.rc \
+    $(LOCAL_PATH)/init.lge.usb.rc:root/init.lge.usb.rc
+
+PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/recovery/postrecoveryboot.sh:recovery/root/sbin/postrecoveryboot.sh
 
 PRODUCT_COPY_FILES += \
@@ -29,10 +33,25 @@ PRODUCT_COPY_FILES += \
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/media_codecs.xml:system/etc/media_codecs.xml \
     $(LOCAL_PATH)/configs/media_profiles.xml:system/etc/media_profiles.xml \
-    $(LOCAL_PATH)/configs/audio_policy.conf::system/etc/audio_policy.conf
+    $(LOCAL_PATH)/configs/audio_policy.conf::system/etc/audio_policy.conf \
+    $(LOCAL_PATH)/configs/wpa_supplicant_overlay.conf:system/etc/wifi/wpa_supplicant_overlay.conf \
+    $(LOCAL_PATH)/configs/p2p_supplicant_overlay.conf:system/etc/wifi/p2p_supplicant_overlay.conf \
+    $(LOCAL_PATH)/configs/init.lge.target.sh:system/etc/init.lge.target.sh \
+    $(LOCAL_PATH)/configs/init.qcom.baseband.sh:system/etc/init.qcom.baseband.sh
 
-PRODUCT_COPY_FILES_OVERRIDES += \
-    $(LOCAL_PATH)/configs/Generic.kl:system/usr/keylayout/Generic.kl
+# SoftAP
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/configs/hostapd/hostapd.accept:system/etc/hostapd/hostapd.accept \
+    $(LOCAL_PATH)/configs/hostapd/hostapd.deny:system/etc/hostapd/hostapd.deny \
+    $(LOCAL_PATH)/configs/hostapd/hostapd_default.conf::system/etc/hostapd/hostapd_default.conf
+
+# Wlan
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/wlan/wlan.ko:system/lib/modules/wlan.ko \
+    $(LOCAL_PATH)/wlan/firmware/WCN1314_qcom_wlan_nv.bin:system/etc/firmware/wlan/volans/WCN1314_qcom_wlan_nv.bin \
+    $(LOCAL_PATH)/wlan/firmware/WCN1314_qcom_fw.bin:system/etc/firmware/wlan/volans/WCN1314_qcom_fw.bin \
+    $(LOCAL_PATH)/wlan/firmware/WCN1314_cfg.dat:system/etc/firmware/wlan/volans/WCN1314_cfg.dat \
+    $(LOCAL_PATH)/wlan/firmware/WCN1314_qcom_cfg.ini:system/etc/firmware/wlan/volans/WCN1314_qcom_cfg.ini
 
 # Permission files
 PRODUCT_COPY_FILES += \
@@ -48,16 +67,6 @@ PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.usb.accessory.xml:system/etc/permissions/android.hardware.usb.accessory.xml \
     frameworks/native/data/etc/android.hardware.usb.host.xml:system/etc/permissions/android.hardware.usb.host.xml \
     frameworks/native/data/etc/android.hardware.touchscreen.multitouch.jazzhand.xml:system/etc/permissions/android.hardware.touchscreen.multitouch.jazzhand.xml
-
-# Qcom scripts
-PRODUCT_PACKAGES += \
-    init.lge-shared.rc \
-    init.target.rc \
-    init.lge.usb.rc \
-    init.qcom.post_boot.sh \
-    init.qcom.efs.sync.sh \
-    init.lge.target.sh \
-    init.qcom.baseband.sh 
 
 # display HALS
 PRODUCT_PACKAGES += \
@@ -110,24 +119,6 @@ PRODUCT_PACKAGES += \
     audio.primary.msm7x27a \
     audio_policy.msm7x27a
 
-# SoftAP files 
-PRODUCT_PACKAGES += \
-    hostapd.accept \
-    hostapd.deny \
-    hostapd_default.conf 
-
-# Wifi
-PRODUCT_PACKAGES += \
-    wpa_supplicant_overlay.conf \
-    p2p_supplicant_overlay.conf \
-    WCN1314_qcom_wlan_nv.bin \
-    WCN1314_qcom_fw.bin \
-    WCN1314_cfg.dat \
-    WCN1314_qcom_cfg.ini
-
-PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/prebuilt/wlan.ko:system/lib/modules/wlan.ko
-
 # light hal
 PRODUCT_PACKAGES += \
     lights.msm7x27a
@@ -147,8 +138,6 @@ PRODUCT_PROPERTY_OVERRIDES += \
 
 # Qcom properties
 PRODUCT_PROPERTY_OVERRIDES += \
-    debug.sf.hw=1 \
-    debug.egl.hw=1 \
     debug.composition.type=dyn \
     persist.hwc.mdpcomp.enable=false \
     debug.mdpcomp.logs=0 \
@@ -159,13 +148,8 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ro.opengles.version=131072
 
 PRODUCT_PROPERTY_OVERRIDES += \
-    ro.fuse_sdcard=true \
+    persist.fuse_sdcard=true \
     persist.service.adb.enable=1
-
-ifeq ($(TARGET_BUILD_VARIANT),userdebug)
-ADDITIONAL_DEFAULT_PROPERTIES += \
-    ro.secure=0
-endif
 
 PRODUCT_DEFAULT_PROPERTY_OVERRIDES += \
     persist.sys.usb.config=mtp

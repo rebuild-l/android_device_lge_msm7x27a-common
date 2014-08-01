@@ -55,8 +55,8 @@ TARGET_USERIMAGES_USE_EXT4 := true
 COMMON_GLOBAL_CFLAGS += -DMR0_CAMERA_BLOB
 COMMON_GLOBAL_CFLAGS += -DLPA_DEFAULT_BUFFER_SIZE=480
 COMMON_GLOBAL_CFLAGS += -DUSE_MDP3 -DNO_IOMMU
-TARGET_GLOBAL_CFLAGS += -mfpu=neon -mfloat-abi=softfp
-TARGET_GLOBAL_CPPFLAGS += -mfpu=neon -mfloat-abi=softfp
+TARGET_GLOBAL_CFLAGS += -mfpu=neon-vfpv4 -mfloat-abi=softfp
+TARGET_GLOBAL_CPPFLAGS += -mfpu=neon-vfpv4 -mfloat-abi=softfp
 
 # QCOM  display stuffs
 BOARD_USES_QCOM_HARDWARE := true
