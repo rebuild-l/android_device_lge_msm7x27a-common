@@ -149,7 +149,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
 
 PRODUCT_PROPERTY_OVERRIDES += \
     persist.fuse_sdcard=true \
-    persist.service.adb.enable=1
+    audio.gapless.playback.disable=true
 
 PRODUCT_DEFAULT_PROPERTY_OVERRIDES += \
     persist.sys.usb.config=mtp
