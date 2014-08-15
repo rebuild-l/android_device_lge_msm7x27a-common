@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2009 The Android Open Source Project
- * Copyright (c) 2012-2013, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2011-2013, The Linux Foundation. All rights reserved.
+ * Not a Contribution.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +34,7 @@ class AudioPolicyManager: public AudioPolicyManagerBase
 
 public:
                 AudioPolicyManager(AudioPolicyClientInterface *clientInterface)
-                : AudioPolicyManagerBase(clientInterface) {}
+                : AudioPolicyManagerBase(clientInterface) {mForceDeviceChange=false;}
 
         virtual ~AudioPolicyManager() {}
 
@@ -45,14 +46,14 @@ public:
                                            audio_devices_t prevDevice,
                                            uint32_t delayMs);
 
-	void setStrategyMute(routing_strategy strategy,
-						 bool on,
-						 audio_io_handle_t output,
-						 int delayMs = 0,
-						 audio_devices_t device = (audio_devices_t)0);
-	void setStreamMute(int stream, bool on, audio_io_handle_t output,
-						int delayMs = 0,
-						audio_devices_t device = (audio_devices_t)0);
+        void setStrategyMute(routing_strategy strategy,
+                             bool on,
+                             audio_io_handle_t output,
+                             int delayMs = 0,
+                             audio_devices_t device = (audio_devices_t)0);
+        void setStreamMute(int stream, bool on, audio_io_handle_t output,
+                           int delayMs = 0,
+                           audio_devices_t device = (audio_devices_t)0);
 
         virtual AudioSystem::device_connection_state getDeviceConnectionState(audio_devices_t device,
                                                                               const char *device_address);
@@ -138,7 +139,6 @@ protected:
 
         // returns true if give output is direct output
         bool isDirectOutput(audio_io_handle_t output);
-
         virtual AudioPolicyManagerBase::IOProfile* getProfileForDirectOutput(
                                                      audio_devices_t device,
                                                      uint32_t samplingRate,
@@ -170,9 +170,9 @@ protected:
         virtual bool a2dpUsedForSonification() const { return true; }
 
 private:
-
         void handleNotificationRoutingForStream(AudioSystem::stream_type stream);
         bool platform_is_Fusion3();
         bool isTunnelOutputEnabled();
+        bool mForceDeviceChange;
 };
 };

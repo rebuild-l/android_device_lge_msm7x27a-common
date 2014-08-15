@@ -256,7 +256,7 @@ private:
     status_t    dumpInternals(int fd, const Vector<String16>& args);
     uint32_t    getInputSampleRate(uint32_t sampleRate);
     bool        checkOutputStandby();
-    status_t    doRouting(AudioStreamInMSM72xx *input, int outputDevice = 0);
+    status_t    doRouting(AudioStreamInMSM72xx *input, uint32_t outputDevices = 0);
 #ifdef QCOM_FM_ENABLED
     status_t    enableFM();
     status_t    disableFM();
@@ -278,22 +278,22 @@ private:
         virtual uint32_t sampleRate() const {
             char af_quality[PROPERTY_VALUE_MAX];
             property_get("af.resampler.quality",af_quality,"0");
-            if(strcmp("255",af_quality) == 0) {
-                ALOGD("SampleRate 48k");
+            if(strcmp("4",af_quality) == 0) {
+                ALOGV("SampleRate 48k");
                 return 48000;
             } else {
-                ALOGD("SampleRate 44.1k");
+                ALOGV("SampleRate 44.1k");
                 return 44100;
             }
         }
         virtual size_t bufferSize() const {
             char af_quality[PROPERTY_VALUE_MAX];
             property_get("af.resampler.quality",af_quality,"0");
-            if(strcmp("255",af_quality) == 0) {
-                ALOGD("Bufsize 5248");
+            if(strcmp("4",af_quality) == 0) {
+                ALOGV("Bufsize 5248");
                 return 5248;
             } else {
-                ALOGD("Bufsize 4800");
+                ALOGV("Bufsize 4800");
                 return 4800;
             }
         }
