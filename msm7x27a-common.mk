@@ -144,7 +144,8 @@ PRODUCT_PROPERTY_OVERRIDES += \
     persist.hwc.mdpcomp.enable=false \
     debug.mdpcomp.logs=0 \
     com.qc.hardware=true \
-    debug.gralloc.map_fb_memory=1
+    debug.gralloc.map_fb_memory=1 \
+    debug.hwc.fakevsync=1
 
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.opengles.version=131072
