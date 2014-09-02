@@ -92,13 +92,6 @@ static void ap_set_phone_state(struct audio_policy *pol, audio_mode_t state)
     qap->apm->setPhoneState((int) state);
 }
 
-    /* indicate a change in ringer mode */
-static void ap_set_ringer_mode(struct audio_policy *pol, uint32_t mode,
-                               uint32_t mask)
-{
-    // deprecated, never called
-}
-
     /* force using a specific device category for the specified usage */
 static void ap_set_force_use(struct audio_policy *pol,
                           audio_policy_force_use_t usage,
@@ -350,7 +343,6 @@ static int create_qcom_ap(const struct audio_policy_device *device,
     qap->policy.set_device_connection_state = ap_set_device_connection_state;
     qap->policy.get_device_connection_state = ap_get_device_connection_state;
     qap->policy.set_phone_state = ap_set_phone_state;
-    qap->policy.set_ringer_mode = ap_set_ringer_mode;
     qap->policy.set_force_use = ap_set_force_use;
     qap->policy.get_force_use = ap_get_force_use;
     qap->policy.set_can_mute_enforced_audible =
