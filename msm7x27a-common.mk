@@ -119,7 +119,8 @@ PRODUCT_PACKAGES += \
     audio.a2dp.default \
     audio.usb.default \
     audio.primary.msm7x27a \
-    audio_policy.msm7x27a
+    audio_policy.msm7x27a \
+    libaudio-resampler
 
 # light hal
 PRODUCT_PACKAGES += \

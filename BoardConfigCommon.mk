@@ -23,10 +23,13 @@
 # WARNING: This line must come *before* including the proprietary
 # variant, so that it gets overwritten by the parent (which goes
 # against the traditional rules of inheritance).
-USE_CAMERA_STUB := true
+
+# inherit from the proprietary version
+-include vendor/lge/msm7x27a-common/BoardConfigVendor.mk
 
 TARGET_SPECIFIC_HEADER_PATH := device/lge/msm7x27a-common/include
 
+BOARD_VENDOR := lge
 TARGET_NO_BOOTLOADER := true
 TARGET_BOARD_PLATFORM := msm7x27a
 
