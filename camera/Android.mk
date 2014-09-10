@@ -10,8 +10,6 @@ include $(CLEAR_VARS)
 DLOPEN_LIBMMCAMERA := 1
 
 LOCAL_CFLAGS:= -DDLOPEN_LIBMMCAMERA=$(DLOPEN_LIBMMCAMERA)
-BUILD_UNIFIED_CODE := true
-LOCAL_CFLAGS+= -DVFE_7X27A
 
 LOCAL_CFLAGS += -DUSE_ION
 
@@ -36,8 +34,6 @@ LOCAL_SRC_FILES := $(MM_CAM_FILES) $(LOCAL_HAL_FILES)
 
 LOCAL_CFLAGS+= -DNUM_PREVIEW_BUFFERS=4 -D_ANDROID_
 
-LOCAL_CFLAGS+= -DUSE_NEON_CONVERSION
-
 # Executed only on QCOM BSPs
 ifeq ($(TARGET_USES_QCOM_BSP),true)
 # This flag is used to compile out any features that depend on framework changes
@@ -60,13 +56,12 @@ LOCAL_SHARED_LIBRARIES := \
     libcutils \
     liblog \
     libui \
-    libutils
- 
-LOCAL_SHARED_LIBRARIES += libmmcamera_interface2
+    libutils \
+    libhardware \
+    libbinder \
+    libmmcamera_interface2
 
-LOCAL_SHARED_LIBRARIES+= libbinder libhardware
-
-      LOCAL_CFLAGS += -include bionic/libc/kernel/common/linux/socket.h
+LOCAL_CFLAGS += -include bionic/libc/kernel/common/linux/socket.h
 
 ifeq ($(DLOPEN_LIBMMCAMERA),1)
     LOCAL_SHARED_LIBRARIES += libdl
