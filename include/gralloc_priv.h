@@ -172,7 +172,7 @@ struct private_handle_t : public native_handle {
 
         // file-descriptors
         int     fd;
-#ifdef QCOM_BSP_GENLOCK_HACK
+#ifdef QCOM_BSP_ABI_HACK
         int     genlockHandle;
 #endif
         int     fd_metadata;          // fd for the meta-data
@@ -191,19 +191,19 @@ struct private_handle_t : public native_handle {
         int     offset_metadata;
         // The gpu address mapped into the mmu.
         int     gpuaddr;
-#ifdef QCOM_BSP_GENLOCK_HACK
+#ifdef QCOM_BSP_ABI_HACK
         int     pid;
 #endif
         int     format;
         int     width;
         int     height;
-#ifdef QCOM_BSP_GENLOCK_HACK
+#ifdef QCOM_BSP_ABI_HACK
         int     genlockPrivFd;
 #endif
         int     base_metadata;
 
 #ifdef __cplusplus
-#ifdef QCOM_BSP_GENLOCK_HACK
+#ifdef QCOM_BSP_ABI_HACK
         static const int sNumInts = 14;
         static const int sNumFds = 3;
 #else
@@ -216,7 +216,7 @@ struct private_handle_t : public native_handle {
                          int format,int width, int height, int eFd = -1,
                          int eOffset = 0, int eBase = 0) :
             fd(fd),
-#ifdef QCOM_BSP_GENLOCK_HACK
+#ifdef QCOM_BSP_ABI_HACK
             genlockHandle(0),
 #endif
             fd_metadata(eFd), magic(sMagic),
@@ -229,11 +229,11 @@ struct private_handle_t : public native_handle {
             bufferType(bufferType),
 #endif
             base(0), offset_metadata(eOffset), gpuaddr(0),
-#ifdef QCOM_BSP_GENLOCK_HACK
+#ifdef QCOM_BSP_ABI_HACK
             pid(getpid()),
 #endif
             format(format), width(width), height(height),
-#ifdef QCOM_BSP_GENLOCK_HACK
+#ifdef QCOM_BSP_ABI_HACK
             genlockPrivFd(0),
 #endif
             base_metadata(eBase)
