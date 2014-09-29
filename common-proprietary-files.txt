@@ -30,7 +30,6 @@ lib/libmmosal.so
 lib/libmmparser.so
 lib/libmmstillomx.so
 lib/libOmxAacDec.so
-lib/libOmxAacEnc.so
 lib/libOmxAc3HwDec.so
 lib/libOmxAdpcmDec.so
 lib/libOmxAmrDec.so
@@ -41,8 +40,6 @@ lib/libOmxEvrcDec.so
 lib/libOmxEvrcEnc.so
 lib/libOmxEvrcHwDec.so
 lib/libOmxH264Dec.so
-lib/libOmxIttiamVdec.so
-lib/libOmxIttiamVenc.so
 lib/libOmxMp3Dec.so
 lib/libOmxMpeg4Dec.so
 lib/libOmxOn2Dec.so
