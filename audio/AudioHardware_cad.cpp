@@ -44,6 +44,9 @@ extern "C" {
 #endif
 //#include <media/AudioRecord.h>
 
+static int (*audcal_init)();
+static void *libaudcal;
+
 #define COMBO_DEVICE_SUPPORTED // Headset speaker combo device supported on this target
 #define DUALMIC_KEY "dualmic_enabled"
 #define TTY_MODE_KEY "tty_mode"
@@ -208,7 +211,18 @@ mDirectOutrefCnt(0)
     } else
         ALOGE("Could not open MSM SND driver.");
 
-    audcal_initialize();
+    libaudcal = ::dlopen("libaudcal.so", RTLD_NOW);
+    if (libaudcal == NULL) {
+       ALOGE("DLOPEN not successful for libaudcal");
+    } else {
+       ALOGD("DLOPEN successful for libaudcal");
+       audcal_init = (int (*)())::dlsym(libaudcal,"audcal_initialize");
+       if (audcal_init == NULL) {
+           ALOGE("dlsym:Error:%s Loading audcal_initialize", dlerror());
+        } else {
+           audcal_init();
+    }
+}
 
     char fluence_key[PROPERTY_VALUE_MAX] = "none";
     property_get("ro.qc.sdk.audio.fluencetype",fluence_key,"0");
