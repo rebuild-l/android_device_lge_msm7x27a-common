@@ -40,7 +40,6 @@ lib/libOmxEvrcDec.so
 lib/libOmxEvrcEnc.so
 lib/libOmxEvrcHwDec.so
 lib/libOmxH264Dec.so
-lib/libOmxMp3Dec.so
 lib/libOmxMpeg4Dec.so
 lib/libOmxOn2Dec.so
 lib/libOmxQcelp13Dec.so
