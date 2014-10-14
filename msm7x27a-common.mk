@@ -133,7 +133,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ro.telephony.default_network=0 \
     ro.telephony.call_ring.multiple=0 \
     telephony.lteOnGsmDevice=0 \
-    rild.libpath=/system/lib/libril-qc-1.so \
+    rild.libpath=/system/lib/libril-qc-qmi-1.so \
     rild.libargs=-d/dev/smd0 \
     ril.subscription.types=NV,RUIM \
     DEVICE_PROVISIONED=1 \
@@ -153,7 +153,9 @@ PRODUCT_PROPERTY_OVERRIDES += \
 
 PRODUCT_PROPERTY_OVERRIDES += \
     persist.fuse_sdcard=true \
-    audio.gapless.playback.disable=true
+    audio.gapless.playback.disable=true \
+    ro.sys.fw.bg_apps_limit=16 \
+    ro.config.max_starting_bg=8
 
 PRODUCT_DEFAULT_PROPERTY_OVERRIDES += \
     persist.sys.usb.config=mtp
