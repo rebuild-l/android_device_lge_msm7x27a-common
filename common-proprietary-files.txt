@@ -18,8 +18,11 @@ lib/libI420colorconvert.so
 lib/libimage-jpeg-enc-omx-comp.so
 lib/libimage-omx-common.so
 lib/libgsl.so
+lib/libmmcamera_faceproc.so
+lib/libmmcamera_frameproc.so
 lib/libmmcamera_hdr_lib.so
 lib/libmmcamera_image_stab.so
+lib/libmmcamera_statsproc31.so
 lib/libmmcamera_wavelet_lib.so
 lib/libmm-adspsvc.so
 lib/libmm-audio-resampler.so
@@ -29,6 +32,10 @@ lib/libmmjpeg.so
 lib/libmmosal.so
 lib/libmmparser.so
 lib/libmmstillomx.so
+lib/libmorpho_memory_allocator.so
+lib/libmorpho_noise_reduction.so
+lib/libmorpho_panorama_gp.so
+lib/libmorpho_panorama_wa_viewer.so
 lib/libOmxAacDec.so
 lib/libOmxAc3HwDec.so
 lib/libOmxAdpcmDec.so
@@ -52,6 +59,7 @@ lib/libOmxWmaDec.so
 lib/libOmxWmvDec.so
 lib/libOpenVG.so
 lib/libOpenCL.so
+lib/liboemcamera.so
 lib/libqc-opt.so
 lib/libSHIMDivxDrm.so
 lib/libsc-a2xx.so
