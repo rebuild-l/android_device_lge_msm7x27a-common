@@ -153,7 +153,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
 PRODUCT_PROPERTY_OVERRIDES += \
     persist.fuse_sdcard=true \
     audio.gapless.playback.disable=true \
-    ro.sys.fw.bg_apps_limit=16 \
+    ro.sys.fw.bg_apps_limit=20 \
     ro.config.max_starting_bg=8
 
 PRODUCT_DEFAULT_PROPERTY_OVERRIDES += \
