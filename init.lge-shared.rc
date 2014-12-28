@@ -42,6 +42,8 @@ on init
 # Backward compatibility
     symlink /system/bin /bin
 
+    write /sys/block/zram0/disksize 192M
+
 # Torch perms
     chown system camera /sys/devices/platform/i2c-gpio.3/i2c-3/3-0030/brightness_uA
     chmod 0777          /sys/devices/platform/i2c-gpio.3/i2c-3/3-0030/brightness_uA
@@ -184,8 +186,14 @@ service targetprop-set /system/bin/sh /system/etc/init.lge.target.sh
     disabled
     oneshot
 
+    exec /system/bin/toolbox mkswap /dev/block/zram0
+    exec /system/bin/toolbox swapon /dev/block/zram0
+
 on boot
    start qcamerasvr
+
+   write /proc/sys/vm/page-cluster 0
+   write /proc/sys/vm/swappiness 100
 
    # bluetooth
     chown bluetooth bluetooth /sys/module/bluetooth_power/parameters/power
