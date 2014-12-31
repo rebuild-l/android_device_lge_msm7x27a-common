@@ -107,7 +107,10 @@ BOARD_SEPOLICY_DIRS := \
 BOARD_SEPOLICY_UNION := \
        device.te \
        app.te \
-       file_contexts
+       file_contexts \
+       untrusted_app.te \
+       vold.te \
+       zygote.te
 
 BOARD_HAS_QCOM_WLAN              := true
 BOARD_HAS_QCOM_WLAN_SDK          := true
