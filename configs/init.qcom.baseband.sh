@@ -4,10 +4,6 @@
 PATH=/sbin:/system/sbin:/system/bin:/system/xbin
 export PATH
 
-# Set baseband based on modem
-basebandcheck=`getprop gsm.version.baseband`
-case "$basebandcheck" in
-	"")
-	setprop gsm.version.baseband `strings /dev/block/mmcblk0p12 | grep -e "-V10.-" -e "-V20.-" | head -1`
-	;;
-esac
+v10=`strings /dev/block/mmcblk0p12 | grep -e "-V10.-"| head -1`
+v20=`strings /dev/block/mmcblk0p12 | grep -e "-V20.-"| head -1`
+setprop gsm.version.baseband ${v10}${v20}
