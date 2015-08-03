@@ -67,7 +67,6 @@ USE_OPENGL_RENDERER := true
 TARGET_USES_ION := true
 TARGET_USES_QCOM_BSP := true
 TARGET_DISPLAY_USE_RETIRE_FENCE := true
-BOARD_EGL_CFG := device/lge/msm7x27a-common/egl.cfg
 
 # Media 
 TARGET_QCOM_MEDIA_VARIANT := caf
