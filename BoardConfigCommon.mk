@@ -108,6 +108,13 @@ BOARD_SEPOLICY_UNION := \
        untrusted_app.te \
        vold.te \
        zygote.te
+       
+# Add h/w acceleration in browser
+WITH_JIT := true
+ENABLE_JSC_JIT := true
+JS_ENGINE := v8
+HTTP := chrome
+ 
 
 BOARD_HAS_QCOM_WLAN              := true
 BOARD_HAS_QCOM_WLAN_SDK          := true
