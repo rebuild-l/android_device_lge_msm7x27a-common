@@ -2590,7 +2590,7 @@ status_t AudioHardware::AudioStreamInMSM72xx::set(
       mChannels = *pChannels;
       mSampleRate = config.sample_rate;
 
-      if (mDevices == AUDIO_DEVICE_IN_VOICE_CALL)
+      if (mDevices == AudioSystem::DEVICE_IN_VOICE_CALL)
       {
         if ((mChannels & AudioSystem::CHANNEL_IN_VOICE_DNLINK) &&
             (mChannels & AudioSystem::CHANNEL_IN_VOICE_UPLINK)) {
