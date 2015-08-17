@@ -30,14 +30,17 @@
 BOARD_VENDOR := lge
 TARGET_NO_BOOTLOADER := true
 TARGET_BOARD_PLATFORM := msm7x27a
+TARGET_BOARD_PLATFORM_GPU := qcom-adreno200
 
 TARGET_ARCH := arm
 TARGET_CPU_ABI := armeabi-v7a
 TARGET_CPU_ABI2 := armeabi
 TARGET_ARCH_VARIANT := armv7-a-neon
-TARGET_CPU_VARIANT := cortex-a9
+TARGET_CPU_VARIANT := cortex-a5
 TARGET_CPU_SMP := true
 TARGET_USE_QCOM_BIONIC_OPTIMIZATION := true
+
+ARCH_ARM_HAVE_TLS_REGISTER := true
 
 TARGET_KERNEL_SOURCE := kernel/lge/msm7x27a-common
 BOARD_KERNEL_BASE := 0x00200000
@@ -56,8 +59,8 @@ TARGET_USERIMAGES_USE_EXT4 := true
 # cflags
 COMMON_GLOBAL_CFLAGS += -DUSE_MDP3
 COMMON_GLOBAL_CFLAGS += -DLPA_DEFAULT_BUFFER_SIZE=480
-TARGET_GLOBAL_CFLAGS += -mfpu=neon-vfpv4 -mfloat-abi=softfp
-TARGET_GLOBAL_CPPFLAGS += -mfpu=neon-vfpv4 -mfloat-abi=softfp
+TARGET_GLOBAL_CFLAGS += -mfloat-abi=softfp -mfpu=neon -mtune=cortex-a5
+TARGET_GLOBAL_CPPFLAGS += -mfloat-abi=softfp -mfpu=neon -mtune=cortex-a5
 
 # QCOM  display stuffs
 BOARD_USES_QCOM_HARDWARE := true
