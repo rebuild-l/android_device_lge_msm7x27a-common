@@ -1,0 +1,165 @@
+From 6197088fb574ed438c4a9cdf3a579be3af435a7b Mon Sep 17 00:00:00 2001
+From: Konsta <konsta09@gmail.com>
+Date: Sun, 29 Jun 2014 17:40:48 +0300
+Subject: [PATCH 1/8] add option to use classic webview
+
+Change-Id: I69622d1111bbbd7797057682e8982f58a465c896
+---
+ res/values/cm_arrays.xml                          |   16 ++++++++
+ res/values/cm_strings.xml                         |    6 +++
+ res/xml/development_prefs.xml                     |    7 ++++
+ src/com/android/settings/DevelopmentSettings.java |   41 +++++++++++++++++++++
+ 4 files changed, 70 insertions(+)
+
+diff --git a/res/values/cm_arrays.xml b/res/values/cm_arrays.xml
+index 5546a4c..217efec 100644
+--- a/res/values/cm_arrays.xml
++++ b/res/values/cm_arrays.xml
+@@ -445,6 +445,22 @@
+         <item>3</item>
+     </string-array>
+ 
++    <!-- Webview -->
++    <string-array name="select_webview_entries" translatable="false">
++        <item>@string/select_webview_chromium</item>
++        <item>@string/select_webview_classic</item>
++    </string-array>
++
++    <string-array name="select_webview_values" translatable="false">
++        <item>chromium</item>
++        <item>classic</item>
++    </string-array>
++
++    <string-array name="select_webview_summaries" translatable="false">
++        <item>@string/select_webview_chromium</item>
++        <item>@string/select_webview_classic</item>
++    </string-array>
++
+     <!--- Sms security limit -->
+     <string-array name="sms_security_check_limit_entries" translatable="false">
+         <item>@string/sms_security_check_limit_none</item>
+diff --git a/res/values/cm_strings.xml b/res/values/cm_strings.xml
+index 4e3c899..e2b6b5e 100644
+--- a/res/values/cm_strings.xml
++++ b/res/values/cm_strings.xml
+@@ -631,6 +631,12 @@ two in order to insert additional control points. \'Remove\' deletes the selecte
+     <string name="kill_app_longpress_back">Kill app back button</string>
+     <string name="kill_app_longpress_back_summary">Kill the foreground app by long pressing the back button</string>
+ 
++    <!-- Webview -->
++    <string name="select_webview_title">Webview</string>
++    <string name="select_webview_dialog_title">Select webview</string>
++    <string name="select_webview_chromium">Chromium</string>
++    <string name="select_webview_classic">Classic</string>
++
+     <!-- Change Log strings -->
+     <string name="changelog_title">Changelog</string>
+     <string name="changelog_loading">Loading changelog\u2026</string>
+diff --git a/res/xml/development_prefs.xml b/res/xml/development_prefs.xml
+index 45e8906..6957301 100644
+--- a/res/xml/development_prefs.xml
++++ b/res/xml/development_prefs.xml
+@@ -336,6 +336,13 @@
+             android:title="@string/kill_app_longpress_back"
+             android:summary="@string/kill_app_longpress_back_summary"/>
+ 
++        <ListPreference
++            android:key="select_webview"
++            android:title="@string/select_webview_title"
++            android:dialogTitle="@string/select_webview_dialog_title"
++            android:entries="@array/select_webview_entries"
++            android:entryValues="@array/select_webview_values" />
++
+     </PreferenceCategory>
+ 
+ </PreferenceScreen>
+diff --git a/src/com/android/settings/DevelopmentSettings.java b/src/com/android/settings/DevelopmentSettings.java
+index ea210b7..afd248a 100644
+--- a/src/com/android/settings/DevelopmentSettings.java
++++ b/src/com/android/settings/DevelopmentSettings.java
+@@ -67,6 +67,7 @@ import android.view.Gravity;
+ import android.view.HardwareRenderer;
+ import android.view.IWindowManager;
+ import android.view.View;
++import android.webkit.WebViewFactory;
+ import android.widget.CompoundButton;
+ import android.widget.Switch;
+ import android.widget.TextView;
+@@ -110,6 +111,7 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
+     private static final String ALLOW_MOCK_SMS = "allow_mock_sms";
+     private static final String HDCP_CHECKING_KEY = "hdcp_checking";
+     private static final String HDCP_CHECKING_PROPERTY = "persist.sys.hdcp_checking";
++    private static final String SELECT_WEBVIEW_KEY = "select_webview";
+     private static final String LOCAL_BACKUP_PASSWORD = "local_backup_password";
+     private static final String HARDWARE_UI_PROPERTY = "persist.sys.ui.hw";
+     private static final String MSAA_PROPERTY = "debug.egl.force_msaa";
+@@ -385,6 +387,20 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
+             removePreferenceForProduction(hdcpChecking);
+         }
+ 
++        Preference selectWebView = findPreference(SELECT_WEBVIEW_KEY);
++        if (WebViewFactory.isClassicWebViewAvailable()
++                && WebViewFactory.isChromiumWebViewAvailable()) {
++            if (selectWebView != null) {
++                mAllPrefs.add(selectWebView);
++            }
++        } else {
++            PreferenceGroup debugApplicationsCategory = (PreferenceGroup)
++                    findPreference(DEBUG_APPLICATIONS_CATEGORY_KEY);
++            if (debugApplicationsCategory != null) {
++                debugApplicationsCategory.removePreference(selectWebView);
++            }
++        }
++
+         mRootAccess = (ListPreference) findPreference(ROOT_ACCESS_KEY);
+         mRootAccess.setOnPreferenceChangeListener(this);
+         if (!removeRootOptionsIfRequired()) {
+@@ -575,6 +591,7 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
+                 Settings.Global.ENABLE_QUICKBOOT, 0) != 0);
+         updateRuntimeValue();
+         updateHdcpValues();
++        updateWebViewValues();
+         updatePasswordSummary();
+         updateDebuggerOptions();
+         updateStrictModeVisualOptions();
+@@ -796,6 +813,25 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
+         }
+     }
+ 
++    private void updateWebViewValues() {
++        ListPreference selectWebView = (ListPreference) findPreference(SELECT_WEBVIEW_KEY);
++        if (selectWebView != null) {
++            String currentValue = SystemProperties.get(WebViewFactory.FORCE_PROVIDER_PROPERTY);
++            String[] values = getResources().getStringArray(R.array.select_webview_values);
++            String[] summaries = getResources().getStringArray(R.array.select_webview_summaries);
++            int index = 0;
++            for (int i = 0; i < values.length; i++) {
++                if (currentValue.equals(values[i])) {
++                    index = i;
++                    break;
++                }
++            }
++            selectWebView.setValue(values[index]);
++            selectWebView.setSummary(summaries[index]);
++            selectWebView.setOnPreferenceChangeListener(this);
++        }
++    }
++
+     private void writeKillAppLongpressBackOptions() {
+         Settings.Secure.putInt(getActivity().getContentResolver(),
+                 Settings.Secure.KILL_APP_LONGPRESS_BACK,
+@@ -1578,6 +1614,11 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
+             updateHdcpValues();
+             pokeSystemProperties();
+             return true;
++        } else if (SELECT_WEBVIEW_KEY.equals(preference.getKey())) {
++            SystemProperties.set(WebViewFactory.FORCE_PROVIDER_PROPERTY, newValue.toString());
++            updateWebViewValues();
++            pokeSystemProperties();
++            return true;
+         } else if (preference == mWindowAnimationScale) {
+             writeAnimationScaleOption(0, mWindowAnimationScale, newValue);
+             return true;
+-- 
+1.7.9.5
+
