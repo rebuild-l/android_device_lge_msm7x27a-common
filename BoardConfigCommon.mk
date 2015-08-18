@@ -73,6 +73,7 @@ TARGET_DISPLAY_USE_RETIRE_FENCE := true
 HWUI_COMPILE_FOR_PERF := true
 
 # Media 
+TARGET_QCOM_LEGACY_OMX := true
 TARGET_QCOM_MEDIA_VARIANT := caf
 
 # Add QC Video Enhancements flag
