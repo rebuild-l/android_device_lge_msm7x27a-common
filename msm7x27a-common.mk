@@ -70,6 +70,10 @@ PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.usb.host.xml:system/etc/permissions/android.hardware.usb.host.xml \
     frameworks/native/data/etc/android.hardware.touchscreen.multitouch.jazzhand.xml:system/etc/permissions/android.hardware.touchscreen.multitouch.jazzhand.xml
 
+# Webkit
+PRODUCT_PACKAGES += \
+    libwebcore
+
 # display HALS
 PRODUCT_PACKAGES += \
     gralloc.msm7x27a \
