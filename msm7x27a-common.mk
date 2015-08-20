@@ -70,9 +70,11 @@ PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.usb.host.xml:system/etc/permissions/android.hardware.usb.host.xml \
     frameworks/native/data/etc/android.hardware.touchscreen.multitouch.jazzhand.xml:system/etc/permissions/android.hardware.touchscreen.multitouch.jazzhand.xml
 
+ifneq ($(filter p700,$(TARGET_BOOTLOADER_BOARD_NAME)),)
 # Webkit
 PRODUCT_PACKAGES += \
     libwebcore
+endif 
 
 # display HALS
 PRODUCT_PACKAGES += \
