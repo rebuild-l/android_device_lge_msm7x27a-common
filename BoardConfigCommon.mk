@@ -27,6 +27,10 @@
 # inherit from the proprietary version
 -include vendor/lge/msm7x27a-common/BoardConfigVendor.mk
 
+ifneq ($(filter p700,$(TARGET_BOOTLOADER_BOARD_NAME)),)
+TARGET_SPECIFIC_HEADER_PATH := device/lge/msm7x27a-common/include
+endif
+
 BOARD_VENDOR := lge
 TARGET_NO_BOOTLOADER := true
 TARGET_BOARD_PLATFORM := msm7x27a
