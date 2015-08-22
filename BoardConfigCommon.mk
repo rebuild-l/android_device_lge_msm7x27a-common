@@ -85,9 +85,11 @@ TARGET_ENABLE_QC_AV_ENHANCEMENTS := true
 # bluetooth
 BOARD_HAVE_BLUETOOTH := true
 
+ifneq ($(filter p700,$(TARGET_BOOTLOADER_BOARD_NAME)),)
 # Webkit
 PRODUCT_PREBUILT_WEBVIEWCHROMIUM := yes
 TARGET_FORCE_CPU_UPLOAD := true
+endif
 
 # audio 
 TARGET_QCOM_AUDIO_VARIANT := caf
@@ -123,7 +125,6 @@ WITH_JIT := true
 ENABLE_JSC_JIT := true
 JS_ENGINE := v8
 HTTP := chrome
- 
 
 BOARD_HAS_QCOM_WLAN              := true
 BOARD_HAS_QCOM_WLAN_SDK          := true
