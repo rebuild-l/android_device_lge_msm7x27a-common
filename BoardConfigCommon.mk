@@ -89,11 +89,11 @@ TARGET_ENABLE_QC_AV_ENHANCEMENTS := true
 # bluetooth
 BOARD_HAVE_BLUETOOTH := true
 
-ifneq ($(filter p700,$(TARGET_BOOTLOADER_BOARD_NAME)),)
+ifneq ($(filter true,$(TARGET_USE_WEBKIT)),)
 # Webkit
 PRODUCT_PREBUILT_WEBVIEWCHROMIUM := yes
 TARGET_FORCE_CPU_UPLOAD := true
-endif
+endif 
 
 # audio 
 TARGET_QCOM_AUDIO_VARIANT := caf
