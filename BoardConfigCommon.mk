@@ -68,6 +68,7 @@ COMMON_GLOBAL_CFLAGS += -DUSE_MDP3
 COMMON_GLOBAL_CFLAGS += -DLPA_DEFAULT_BUFFER_SIZE=480
 TARGET_GLOBAL_CFLAGS += -mfloat-abi=softfp -mfpu=neon-vfpv4 -mtune=cortex-a5
 TARGET_GLOBAL_CPPFLAGS += -mfloat-abi=softfp -mfpu=neon-vfpv4 -mtune=cortex-a5
+COMMON_GLOBAL_CFLAGS += -DNEEDS_VECTORIMPL_SYMBOLS
 
 # QCOM  display stuffs
 BOARD_USES_QCOM_HARDWARE := true
