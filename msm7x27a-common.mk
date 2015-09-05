@@ -72,7 +72,6 @@ PRODUCT_COPY_FILES += \
 
 # display HALS
 PRODUCT_PACKAGES += \
-    libgenlock \
     gralloc.msm7x27a \
     copybit.msm7x27a \
     libqdMetaData \
@@ -142,7 +141,6 @@ PRODUCT_PROPERTY_OVERRIDES += \
 PRODUCT_PROPERTY_OVERRIDES += \
     debug.composition.type=dyn \
     persist.hwc.mdpcomp.enable=false \
-    debug.mdpcomp.logs=0 \
     com.qc.hardware=true \
     debug.gralloc.map_fb_memory=1 \
     debug.hwc.fakevsync=1

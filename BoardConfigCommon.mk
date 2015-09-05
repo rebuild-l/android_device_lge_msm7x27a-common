@@ -27,8 +27,6 @@
 # inherit from the proprietary version
 -include vendor/lge/msm7x27a-common/BoardConfigVendor.mk
 
-TARGET_SPECIFIC_HEADER_PATH := device/lge/msm7x27a-common/include
-
 BOARD_VENDOR := lge
 TARGET_NO_BOOTLOADER := true
 TARGET_BOARD_PLATFORM := msm7x27a
@@ -56,7 +54,7 @@ BOARD_VOLD_MAX_PARTITIONS := 23
 TARGET_USERIMAGES_USE_EXT4 := true
 
 # cflags
-COMMON_GLOBAL_CFLAGS += -DQCOM_BSP_ABI_HACK -DUSE_MDP3
+COMMON_GLOBAL_CFLAGS += -DUSE_MDP3
 COMMON_GLOBAL_CFLAGS += -DLPA_DEFAULT_BUFFER_SIZE=480
 TARGET_GLOBAL_CFLAGS += -mfpu=neon-vfpv4 -mfloat-abi=softfp
 TARGET_GLOBAL_CPPFLAGS += -mfpu=neon-vfpv4 -mfloat-abi=softfp
@@ -69,8 +67,6 @@ USE_OPENGL_RENDERER := true
 TARGET_USES_ION := true
 TARGET_USES_QCOM_BSP := true
 TARGET_DISPLAY_USE_RETIRE_FENCE := true
-BOARD_EGL_WORKAROUND_BUG_10194508 := true
-BOARD_EGL_CFG := device/lge/msm7x27a-common/egl.cfg
 
 # Media 
 TARGET_QCOM_MEDIA_VARIANT := caf
@@ -83,8 +79,6 @@ BOARD_HAVE_BLUETOOTH := true
 
 # audio 
 TARGET_QCOM_AUDIO_VARIANT := caf
-TARGET_PROVIDES_LIBAUDIO := true
-BOARD_QCOM_VOIP_ENABLED := true
 BOARD_USES_LEGACY_ALSA_AUDIO := true
 TARGET_HAS_QACT := true
 
