@@ -44,6 +44,8 @@ TARGET_CPU_VARIANT := cortex-a5
 TARGET_CPU_SMP := true
 TARGET_USE_QCOM_BIONIC_OPTIMIZATION := true
 
+TARGET_KERNEL_SOURCE := kernel/lge/msm7x27a-common
+
 ARCH_ARM_HAVE_TLS_REGISTER := true
 
 # Build
