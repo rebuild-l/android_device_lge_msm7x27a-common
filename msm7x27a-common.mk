@@ -171,13 +171,6 @@ PRODUCT_PROPERTY_OVERRIDES += \
    media.stagefright.enable-fma2dp=true \
    media.stagefright.enable-aac=true \
    media.stagefright.enable-qcp=true
-   
-# Voip
-PRODUCT_PROPERTY_OVERRIDES += \
-   lpa.decode=false
-   tunnel.decode=false
-   lpa.use-stagefright=false
-   lpa.releaselock=false
 
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.vendor.extension_library=/system/lib/libqc-opt.so
