@@ -27,10 +27,6 @@
 # inherit from the proprietary version
 -include vendor/lge/msm7x27a-common/BoardConfigVendor.mk
 
-ifneq ($(filter p700,$(TARGET_BOOTLOADER_BOARD_NAME)),)
-TARGET_SPECIFIC_HEADER_PATH := device/lge/msm7x27a-common/include
-endif
-
 BOARD_VENDOR := lge
 TARGET_NO_BOOTLOADER := true
 TARGET_BOARD_PLATFORM := msm7x27a
@@ -72,7 +68,6 @@ TARGET_GLOBAL_CPPFLAGS += -mfloat-abi=softfp -mfpu=neon-vfpv4 -mtune=cortex-a5
 COMMON_GLOBAL_CFLAGS += -DNEEDS_VECTORIMPL_SYMBOLS
 
 # QCOM  display stuffs
-BOARD_USES_QCOM_HARDWARE := true
 BOARD_ADRENO_DECIDE_TEXTURE_TARGET := true
 TARGET_QCOM_DISPLAY_VARIANT := caf
 USE_OPENGL_RENDERER := true
@@ -90,12 +85,6 @@ TARGET_ENABLE_QC_AV_ENHANCEMENTS := true
 
 # bluetooth
 BOARD_HAVE_BLUETOOTH := true
-
-ifneq ($(filter true,$(TARGET_USE_WEBKIT)),)
-# Webkit
-PRODUCT_PREBUILT_WEBVIEWCHROMIUM := yes
-TARGET_FORCE_CPU_UPLOAD := true
-endif 
 
 # audio 
 TARGET_QCOM_AUDIO_VARIANT := caf
